@@ -15,7 +15,7 @@ public class TestSpringBootTestContainersApplication {
 	@DynamicPropertySource
 	static void springBootRunner(DynamicPropertyRegistry properties) {
 		SpringBootServerCommandLine commandLine = SpringBootServerCommandLine.builder()
-				.addClasspathEntries("/home/rwinch/code/rwinch/spring-authorization-server-sample/build/libs/spring-authorization-server-sample-0.0.1-SNAPSHOT.jar", "/home/rwinch/code/rwinch/spring-boot-test-containers/src/main/resources/exported")
+				.addClasspathEntries("/home/rwinch/code/rwinch/spring-authorization-server-sample/build/libs/spring-authorization-server-sample-0.0.1-SNAPSHOT.jar", "/home/rwinch/code/rwinch/spring-boot-testjars/src/main/resources/exported")
 				.build();
 		CommonsExecSpringBootServer runner = new CommonsExecSpringBootServer(commandLine);
 		runner.start();
