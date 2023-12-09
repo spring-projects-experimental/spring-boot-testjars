@@ -25,13 +25,10 @@ import java.io.File;
 
 public class CommonsExecSpringBootServer implements SpringBootServer {
 
-	private final CommandLine commandLine;
+	private final SpringBootServerCommandLine commandLine;
 
-	private final File applicationPortFile;
-
-	public CommonsExecSpringBootServer(CommandLine commandLine, File applicationPortFile) {
+	public CommonsExecSpringBootServer(SpringBootServerCommandLine commandLine) {
 		this.commandLine = commandLine;
-		this.applicationPortFile = applicationPortFile;
 	}
 
 	public void start() {
@@ -49,7 +46,7 @@ public class CommonsExecSpringBootServer implements SpringBootServer {
 	}
 
 	public int getApplicationPort() {
-		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.applicationPortFile);
+		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.commandLine.getApplicationPortFile());
 		return applicationPortFileWatcher.getApplicationPort();
 	}
 }
