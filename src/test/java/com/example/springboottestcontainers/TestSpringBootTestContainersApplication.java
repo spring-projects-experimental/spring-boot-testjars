@@ -15,6 +15,7 @@ public class TestSpringBootTestContainersApplication {
 	@DynamicPropertySource
 	static void springBootRunner(DynamicPropertyRegistry properties) {
 		SpringBootServerCommandLine commandLine = SpringBootServerCommandLine.builder()
+				// FIXME: copy spring.factories to temp folder and auto add to classpath
 				.addClasspathEntries("/home/rwinch/code/rwinch/spring-authorization-server-sample/build/libs/spring-authorization-server-sample-0.0.1-SNAPSHOT.jar", "/home/rwinch/code/rwinch/spring-boot-testjars/src/main/resources/exported")
 				.build();
 		CommonsExecSpringBootServer runner = new CommonsExecSpringBootServer(commandLine);
