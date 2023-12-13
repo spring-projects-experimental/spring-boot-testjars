@@ -41,6 +41,7 @@ public class SpringBootServerCommandLine extends CommandLine {
 	public static SpringBootServerCommandLineBuilder builder() {
 		return new SpringBootServerCommandLineBuilder();
 	}
+
 	public static class SpringBootServerCommandLineBuilder {
 		private String executable = currentJavaExecutable();
 
