@@ -1,13 +1,13 @@
-package com.example.springboottestcontainers;
+package example.authorization.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBootTestContainersApplication {
+public class AuthorizationServerMain {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootTestContainersApplication.class, args);
+		SpringApplication.run(AuthorizationServerMain.class, args);
 	}
 
 }
