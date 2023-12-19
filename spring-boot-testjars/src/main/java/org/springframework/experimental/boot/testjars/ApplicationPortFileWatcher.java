@@ -20,6 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
+/**
+ * Use {@link #getApplicationPort()} to block until {@link #applicationPortFile} is created and has content to read the
+ * contents of the file as an integer that represents the application port.
+ */
 final class ApplicationPortFileWatcher {
 
 	private final File applicationPortFile;

@@ -16,9 +16,22 @@
 
 package org.springframework.experimental.boot.testjars;
 
+/**
+ * Represents a Spring Boot server application.
+ *
+ * FIXME: Should this be {@link org.springframework.boot.web.server.WebServer}?
+ */
 public interface SpringBootServer {
-	void start();
 
+	/**
+	 * Asynchronously start the application.
+	 */
+	void startAsync();
+
+	/**
+	 * Gets the port the application was started on. Blocks until the application will respond on the port.
+	 * @return the port the application was started on.
+	 */
 	int getApplicationPort();
 
 }

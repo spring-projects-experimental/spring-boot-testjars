@@ -26,10 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * An extension to {@link CommandLine} that provides the {@link #getApplicationPortFile()} which will be specified as a
+ * commandline argument as well.
+ *
+ * It also provides {@link #builder()} to simplify building the commandline arguments for a Spring Boot application.
+ */
 public class SpringBootServerCommandLine extends CommandLine {
 	private final File applicationPortFile;
 
-	public SpringBootServerCommandLine(String command, File applicationPortFile) {
+	private SpringBootServerCommandLine(String command, File applicationPortFile) {
 		super(command);
 		this.applicationPortFile = applicationPortFile;
 	}

@@ -16,13 +16,15 @@
 
 package org.springframework.experimental.boot.testjars;
 
-import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 
-import java.io.File;
-
+/**
+ * An implementation of {@link SpringBootServer} that uses Apache Commons Exec.
+ *
+ * @author Rob Winch
+ */
 public class CommonsExecSpringBootServer implements SpringBootServer {
 
 	private final SpringBootServerCommandLine commandLine;
@@ -31,7 +33,7 @@ public class CommonsExecSpringBootServer implements SpringBootServer {
 		this.commandLine = commandLine;
 	}
 
-	public void start() {
+	public void startAsync() {
 		System.out.println("Starting the application");
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
