@@ -94,7 +94,7 @@ public class WebServerCommandLine extends CommandLine {
 			WebServerCommandLine commandLine = new WebServerCommandLine(this.executable, this.applicationPortFile);
 			commandLine.addArguments(createSystemPropertyArgs(), false);
 			commandLine.addArgument("-classpath", false);
-			commandLine.addArguments(createClasspathArgValues(), false);
+			commandLine.addArgument(createClasspathArgValue(), false);
 			commandLine.addArgument(this.mainClass);
 			return commandLine;
 		}
@@ -108,7 +108,7 @@ public class WebServerCommandLine extends CommandLine {
 					.toArray(String[]::new);
 		}
 
-		private String createClasspathArgValues() {
+		private String createClasspathArgValue() {
 			return this.classpath.stream()
 				.flatMap(entry -> entry.resolve().stream())
 				.collect(Collectors.joining(File.pathSeparator));
