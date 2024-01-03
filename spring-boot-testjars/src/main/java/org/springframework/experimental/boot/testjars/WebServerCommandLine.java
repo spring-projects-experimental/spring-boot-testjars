@@ -61,6 +61,7 @@ public class WebServerCommandLine extends CommandLine {
 
 		private static File createApplicationPortFile() {
 			try {
+				// FIXME: Review if we have a temp file CVE here
 				return File.createTempFile("application-", ".port");
 			} catch (IOException e) {
 				throw new RuntimeException(e);
