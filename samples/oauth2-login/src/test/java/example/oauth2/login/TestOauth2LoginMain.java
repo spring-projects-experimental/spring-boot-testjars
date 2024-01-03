@@ -18,12 +18,10 @@ package example.oauth2.login;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.experimental.boot.testjars.CommonsExecWebServer;
 import org.springframework.experimental.boot.testjars.WebServerCommandLine;
 import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 @TestConfiguration(proxyBeanMethods = false)
 class TestOauth2LoginMain {
@@ -37,7 +35,9 @@ class TestOauth2LoginMain {
 		//  - Supports meta annotations so AuthZ Server can have an annotation that maps "spring.security.oauth2.client.provider.spring.issuer-uri", () -> "http://127.0.0.1:" + runner.getPort()
 		WebServerCommandLine commandLine = WebServerCommandLine.builder()
 				// FIXME: copy spring.factories to temp folder and auto add to classpath
-				.addClasspathEntries("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+				.classpath(cp -> cp
+					.files("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+				)
 				.build();
 		CommonsExecWebServer runner = new CommonsExecWebServer(commandLine);
 		runner.start();

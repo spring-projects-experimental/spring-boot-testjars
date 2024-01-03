@@ -17,14 +17,14 @@
 package org.springframework.experimental.boot.testjars;
 
 import org.apache.commons.exec.CommandLine;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -33,11 +33,14 @@ import java.util.stream.Collectors;
  *
  * It also provides {@link #builder()} to simplify building the commandline arguments for a Spring Boot application.
  */
-public class WebServerCommandLine extends CommandLine {
+public class WebServerCommandLine extends CommandLine implements DisposableBean {
+	private final DisposableBean disposableBean;
+
 	private final File applicationPortFile;
 
-	private WebServerCommandLine(String command, File applicationPortFile) {
+	private WebServerCommandLine(DisposableBean disposableBean, String command, File applicationPortFile) {
 		super(command);
+		this.disposableBean = disposableBean;
 		this.applicationPortFile = applicationPortFile;
 	}
 
@@ -45,14 +48,18 @@ public class WebServerCommandLine extends CommandLine {
 		return applicationPortFile;
 	}
 
+	public void destroy() throws Exception {
+		this.disposableBean.destroy();
+	}
+
 	public static SpringBootServerCommandLineBuilder builder() {
 		return new SpringBootServerCommandLineBuilder();
 	}
 
-	public static class SpringBootServerCommandLineBuilder {
+	public static class SpringBootServerCommandLineBuilder implements DisposableBean {
 		private String executable = currentJavaExecutable();
 
-		private List<ClasspathEntry> classpath = createInitialClasspath();
+		private ClasspathBuilder classpath = new ClasspathBuilder();
 
 		private Map<String, String> systemProperties = new HashMap<>();
 
@@ -61,12 +68,7 @@ public class WebServerCommandLine extends CommandLine {
 		private File applicationPortFile = createApplicationPortFile();
 
 		private SpringBootServerCommandLineBuilder() {
-		}
-
-		private static List<ClasspathEntry> createInitialClasspath() {
-			List<ClasspathEntry> result = new ArrayList<>();
-			result.add(new FileClasspathEntry("/home/rwinch/code/rwinch/spring-boot-testjars/spring-boot-testjars/src/main/resources/org/springframework/experimental/boot/testjars/classpath-entries"));
-			return result;
+			this.classpath.entries(new ResourceClasspathEntry("org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories", "META-INF/spring.factories"));
 		}
 
 		private static File createApplicationPortFile() {
@@ -78,10 +80,8 @@ public class WebServerCommandLine extends CommandLine {
 			}
 		}
 
-		public SpringBootServerCommandLineBuilder addClasspathEntries(String... classpathEntries) {
-			Arrays.stream(classpathEntries)
-				.map(FileClasspathEntry::new)
-				.forEachOrdered(this.classpath::add);
+		public SpringBootServerCommandLineBuilder classpath(Consumer<ClasspathBuilder> configure) {
+			configure.accept(this.classpath);
 			return this;
 		}
 
@@ -91,10 +91,10 @@ public class WebServerCommandLine extends CommandLine {
 		}
 
 		public WebServerCommandLine build() {
-			WebServerCommandLine commandLine = new WebServerCommandLine(this.executable, this.applicationPortFile);
+			WebServerCommandLine commandLine = new WebServerCommandLine(this, this.executable, this.applicationPortFile);
 			commandLine.addArguments(createSystemPropertyArgs(), false);
 			commandLine.addArgument("-classpath", false);
-			commandLine.addArgument(createClasspathArgValue(), false);
+			commandLine.addArgument(this.classpath.build(), false);
 			commandLine.addArgument(this.mainClass);
 			return commandLine;
 		}
@@ -108,10 +108,9 @@ public class WebServerCommandLine extends CommandLine {
 					.toArray(String[]::new);
 		}
 
-		private String createClasspathArgValue() {
-			return this.classpath.stream()
-				.flatMap(entry -> entry.resolve().stream())
-				.collect(Collectors.joining(File.pathSeparator));
+		public void destroy() {
+			this.classpath.cleanup();
+			FileSystemUtils.deleteRecursively(this.applicationPortFile);
 		}
 
 		private static String currentJavaExecutable() {

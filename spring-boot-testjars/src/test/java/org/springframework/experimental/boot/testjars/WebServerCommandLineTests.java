@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class WebServerCommandLineTests {
 
@@ -40,5 +39,6 @@ class WebServerCommandLineTests {
 		String classpath = args.get(index + 1);
 		URLClassLoader loader = new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }, null);
 		assertThat(loader.findResource("META-INF/spring.factories")).isNotNull();
+		cmd.destroy();
 	}
 }

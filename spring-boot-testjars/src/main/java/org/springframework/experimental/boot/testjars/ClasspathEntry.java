@@ -20,4 +20,8 @@ import java.util.List;
 
 public interface ClasspathEntry {
 	List<String> resolve();
+
+	default void cleanup() {
+	}
+
 }
