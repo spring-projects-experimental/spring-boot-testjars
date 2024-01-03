@@ -21,6 +21,7 @@ import org.apache.commons.exec.CommandLine;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +52,16 @@ public class WebServerCommandLine extends CommandLine {
 	public static class SpringBootServerCommandLineBuilder {
 		private String executable = currentJavaExecutable();
 
-		private List<String> classpath = new ArrayList<>();
+		private List<ClasspathEntry> classpath = createInitialClasspath();
 
 		private Map<String, String> systemProperties = new HashMap<>();
 
 		private String mainClass = "org.springframework.boot.loader.JarLauncher";
 
 		private File applicationPortFile = createApplicationPortFile();
+
+		private SpringBootServerCommandLineBuilder() {
+		}
 
 		private static File createApplicationPortFile() {
 			try {
@@ -69,7 +73,9 @@ public class WebServerCommandLine extends CommandLine {
 		}
 
 		public SpringBootServerCommandLineBuilder addClasspathEntries(String... classpathEntries) {
-			addAll(this.classpath, classpathEntries);
+			Arrays.stream(classpathEntries)
+				.map(FileClasspathEntry::new)
+				.forEachOrdered(this.classpath::add);
 			return this;
 		}
 
@@ -82,7 +88,7 @@ public class WebServerCommandLine extends CommandLine {
 			WebServerCommandLine commandLine = new WebServerCommandLine(this.executable, this.applicationPortFile);
 			commandLine.addArguments(createSystemPropertyArgs(), false);
 			commandLine.addArgument("-classpath", false);
-			commandLine.addArguments(createClasspathArgValue(), false);
+			commandLine.addArguments(createClasspathArgValues(), false);
 			commandLine.addArgument(this.mainClass);
 			return commandLine;
 		}
@@ -96,15 +102,10 @@ public class WebServerCommandLine extends CommandLine {
 					.toArray(String[]::new);
 		}
 
-		private String createClasspathArgValue() {
+		private String createClasspathArgValues() {
 			return this.classpath.stream()
-					.collect(Collectors.joining(File.pathSeparator));
-		}
-
-		private static void addAll(List<String> list, String... entries) {
-			for (String classpathEntry : entries) {
-				list.add(classpathEntry);
-			}
+				.flatMap(entry -> entry.resolve().stream())
+				.collect(Collectors.joining(File.pathSeparator));
 		}
 
 		private static String currentJavaExecutable() {
