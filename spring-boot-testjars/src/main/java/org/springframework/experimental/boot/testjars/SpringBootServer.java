@@ -19,7 +19,8 @@ package org.springframework.experimental.boot.testjars;
 /**
  * Represents a Spring Boot server application.
  *
- * FIXME: Should this be {@link org.springframework.boot.web.server.WebServer}?
+ * FIXME: Should this be {@link org.springframework.boot.web.server.WebServer}? See ServletWebServerFactory Possibly
+ * have ExternalWebServerFactory which starts externalized apps.
  */
 public interface SpringBootServer {
 
