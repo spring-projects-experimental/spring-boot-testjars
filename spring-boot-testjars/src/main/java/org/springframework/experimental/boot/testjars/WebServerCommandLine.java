@@ -63,6 +63,12 @@ public class WebServerCommandLine extends CommandLine {
 		private SpringBootServerCommandLineBuilder() {
 		}
 
+		private static List<ClasspathEntry> createInitialClasspath() {
+			List<ClasspathEntry> result = new ArrayList<>();
+			result.add(new FileClasspathEntry("/home/rwinch/code/rwinch/spring-boot-testjars/spring-boot-testjars/src/main/resources/org/springframework/experimental/boot/testjars/classpath-entries"));
+			return result;
+		}
+
 		private static File createApplicationPortFile() {
 			try {
 				// FIXME: Review if we have a temp file CVE here
