@@ -24,6 +24,9 @@ import org.springframework.boot.web.server.WebServer;
 /**
  * An implementation of {@link WebServer} that uses Apache Commons Exec.
  *
+ * FIXME: The interface WebServer is not ideal since it cannot implment a graceful shutdown. We also want start shutdown
+ * method to be called as a Bean lifecycle method. Consider a new interface (e.g.
+ *
  * @author Rob Winch
  */
 public class CommonsExecWebServer implements WebServer {
