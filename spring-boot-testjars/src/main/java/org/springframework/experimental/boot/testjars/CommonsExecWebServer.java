@@ -19,21 +19,22 @@ package org.springframework.experimental.boot.testjars;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.springframework.boot.web.server.WebServer;
 
 /**
- * An implementation of {@link SpringBootServer} that uses Apache Commons Exec.
+ * An implementation of {@link WebServer} that uses Apache Commons Exec.
  *
  * @author Rob Winch
  */
-public class CommonsExecSpringBootServer implements SpringBootServer {
+public class CommonsExecWebServer implements WebServer {
 
-	private final SpringBootServerCommandLine commandLine;
+	private final WebServerCommandLine commandLine;
 
-	public CommonsExecSpringBootServer(SpringBootServerCommandLine commandLine) {
+	public CommonsExecWebServer(WebServerCommandLine commandLine) {
 		this.commandLine = commandLine;
 	}
 
-	public void startAsync() {
+	public void start() {
 		System.out.println("Starting the application");
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
@@ -47,7 +48,11 @@ public class CommonsExecSpringBootServer implements SpringBootServer {
 		System.out.println("Done Execute");
 	}
 
-	public int getApplicationPort() {
+	public void stop() {
+		// FIXME: Should stop the process
+	}
+
+	public int getPort() {
 		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.commandLine.getApplicationPortFile());
 		return applicationPortFileWatcher.getApplicationPort();
 	}

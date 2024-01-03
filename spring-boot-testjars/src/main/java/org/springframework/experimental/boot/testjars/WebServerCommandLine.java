@@ -32,10 +32,10 @@ import java.util.stream.Collectors;
  *
  * It also provides {@link #builder()} to simplify building the commandline arguments for a Spring Boot application.
  */
-public class SpringBootServerCommandLine extends CommandLine {
+public class WebServerCommandLine extends CommandLine {
 	private final File applicationPortFile;
 
-	private SpringBootServerCommandLine(String command, File applicationPortFile) {
+	private WebServerCommandLine(String command, File applicationPortFile) {
 		super(command);
 		this.applicationPortFile = applicationPortFile;
 	}
@@ -77,8 +77,8 @@ public class SpringBootServerCommandLine extends CommandLine {
 			return this;
 		}
 
-		public SpringBootServerCommandLine build() {
-			SpringBootServerCommandLine commandLine = new SpringBootServerCommandLine(this.executable, this.applicationPortFile);
+		public WebServerCommandLine build() {
+			WebServerCommandLine commandLine = new WebServerCommandLine(this.executable, this.applicationPortFile);
 			commandLine.addArguments(createSystemPropertyArgs(), false);
 			commandLine.addArgument("-classpath", false);
 			commandLine.addArguments(createClasspathArgValue(), false);
