@@ -30,11 +30,18 @@ public class CommonsExecWebServer implements WebServer {
 
 	private final WebServerCommandLine commandLine;
 
+	// FIXME: Concurrency issues
+	private boolean start;
+
 	public CommonsExecWebServer(WebServerCommandLine commandLine) {
 		this.commandLine = commandLine;
 	}
 
 	public void start() {
+		if (this.start) {
+			return;
+		}
+		this.start = true;
 		System.out.println("Starting the application");
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
