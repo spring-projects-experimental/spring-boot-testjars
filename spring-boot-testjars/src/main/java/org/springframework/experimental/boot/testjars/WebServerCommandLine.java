@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
  * commandline argument as well.
  *
  * It also provides {@link #builder()} to simplify building the commandline arguments for a Spring Boot application.
+ *
+ * FIXME: Should this be extracted to an interface so it isn't tied to commons exec? Right now only one so we
+ *        could extract later.
  */
 public class WebServerCommandLine extends CommandLine implements DisposableBean {
 	private final DisposableBean disposableBean;
