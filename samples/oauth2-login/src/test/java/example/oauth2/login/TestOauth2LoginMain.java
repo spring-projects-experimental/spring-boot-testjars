@@ -37,7 +37,7 @@ class TestOauth2LoginMain {
 		//  - Supports meta annotations so AuthZ Server can have an annotation that maps "spring.security.oauth2.client.provider.spring.issuer-uri", () -> "http://127.0.0.1:" + runner.getPort()
 		WebServerCommandLine commandLine = WebServerCommandLine.builder()
 				// FIXME: copy spring.factories to temp folder and auto add to classpath
-				.addClasspathEntries("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar", "/home/rwinch/code/rwinch/spring-boot-testjars/spring-boot-testjars/src/main/resources/exported")
+				.addClasspathEntries("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar", "/home/rwinch/code/rwinch/spring-boot-testjars/spring-boot-testjars/src/main/resources/org/springframework/experimental/boot/testjars/classpath-entries")
 				.build();
 		CommonsExecWebServer runner = new CommonsExecWebServer(commandLine);
 		runner.start();
