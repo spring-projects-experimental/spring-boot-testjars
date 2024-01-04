@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.testjars;
+package org.springframework.experimental.test.context;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;

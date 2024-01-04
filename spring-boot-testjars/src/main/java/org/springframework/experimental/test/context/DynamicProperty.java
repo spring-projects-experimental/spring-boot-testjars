@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.testjars;
+package org.springframework.experimental.test.context;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
