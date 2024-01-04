@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.experimental.boot.testjars.CommonsExecWebServer;
 import org.springframework.experimental.boot.testjars.DynamicProperty;
 import org.springframework.experimental.boot.testjars.DynamicPropertyDefinitionRegistrar;
-import org.springframework.experimental.boot.testjars.WebServerCommandLine;
 
 @TestConfiguration(proxyBeanMethods = false)
 @Import(DynamicPropertyDefinitionRegistrar.class)
@@ -32,12 +31,11 @@ class TestOauth2LoginMain {
 	@Bean
 	@DynamicProperty(name = "spring.security.oauth2.client.provider.spring.issuer-uri", value = "'http://127.0.0.1:' + port")
 	static CommonsExecWebServer oauthServer() {
-		WebServerCommandLine cmd = WebServerCommandLine.builder()
+		return CommonsExecWebServer.builder()
 			.classpath(cp -> cp
 					.files("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
 			)
 			.build();
-		return new CommonsExecWebServer(cmd);
 	}
 
 	public static void main(String[] args) throws Exception {

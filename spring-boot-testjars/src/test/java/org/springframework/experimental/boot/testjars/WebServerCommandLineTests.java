@@ -30,15 +30,15 @@ class WebServerCommandLineTests {
 
 	@Test
 	void classpathContainsSpringFactories() throws Exception {
-		WebServerCommandLine cmd = WebServerCommandLine.builder()
+		CommonsExecWebServer server = CommonsExecWebServer.builder()
 				.build();
-		List<String> args = Arrays.asList(cmd.getArguments());
+		List<String> args = Arrays.asList(server.getCommandLine().getArguments());
 		int index = args.indexOf("-classpath");
 		assertThat(index).isGreaterThanOrEqualTo(0);
 		assertThat(args).hasSizeGreaterThan(index + 1);
 		String classpath = args.get(index + 1);
 		URLClassLoader loader = new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }, null);
 		assertThat(loader.findResource("META-INF/spring.factories")).isNotNull();
-		cmd.destroy();
+		server.destroy();
 	}
 }

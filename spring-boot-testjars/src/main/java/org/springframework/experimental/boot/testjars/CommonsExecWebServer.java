@@ -16,15 +16,18 @@
 
 package org.springframework.experimental.boot.testjars;
 
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.exec.*;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.server.WebServer;
+import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * An implementation of {@link WebServer} that uses Apache Commons Exec.
@@ -36,15 +39,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class CommonsExecWebServer implements WebServer, InitializingBean, DisposableBean {
 
-	private final WebServerCommandLine commandLine;
+	private final CommandLine commandLine;
+
+	private final File applicationPortFile;
 
 	private ExecuteWatchdog watchdog;
 
 	// FIXME: Concurrency issues
 	private boolean start;
 
-	public CommonsExecWebServer(WebServerCommandLine commandLine) {
+	private CommonsExecWebServer(CommandLine commandLine, File applicationPortFile) {
 		this.commandLine = commandLine;
+		this.applicationPortFile = applicationPortFile;
 	}
 
 	@Override
@@ -62,7 +68,7 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 			return;
 		}
 		this.start = true;
-		this.watchdog = new ExecuteWatchdog(TimeUnit.MINUTES.toMillis(15));
+		this.watchdog = new ExecuteWatchdog(TimeUnit.MINUTES.toMillis(5));
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
 		DefaultExecuteResultHandler result = new DefaultExecuteResultHandler();
@@ -81,7 +87,78 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 	}
 
 	public int getPort() {
-		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.commandLine.getApplicationPortFile());
+		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.applicationPortFile);
 		return applicationPortFileWatcher.getApplicationPort();
+	}
+
+	CommandLine getCommandLine() {
+		return commandLine;
+	}
+
+	public static CommonsExecWebServerBuilder builder() {
+		return new CommonsExecWebServerBuilder();
+	}
+
+	public static class CommonsExecWebServerBuilder {
+		private String executable = currentJavaExecutable();
+
+		private ClasspathBuilder classpath = new ClasspathBuilder();
+
+		private Map<String, String> systemProperties = new HashMap<>();
+
+		private String mainClass = "org.springframework.boot.loader.JarLauncher";
+
+		private File applicationPortFile = createApplicationPortFile();
+
+		private CommonsExecWebServerBuilder() {
+			this.classpath.entries(new ResourceClasspathEntry("org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories", "META-INF/spring.factories"));
+		}
+
+		private static File createApplicationPortFile() {
+			try {
+				// FIXME: Review if we have a temp file CVE here
+				return File.createTempFile("application-", ".port");
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public CommonsExecWebServerBuilder classpath(Consumer<ClasspathBuilder> configure) {
+			configure.accept(this.classpath);
+			return this;
+		}
+
+		public CommonsExecWebServerBuilder addSystemProperties(Map<String, String> systemProperties) {
+			this.systemProperties.putAll(systemProperties);
+			return this;
+		}
+
+		public CommonsExecWebServer build() {
+			CommandLine commandLine = new CommandLine(this.executable);
+			commandLine.addArguments(createSystemPropertyArgs(), false);
+			commandLine.addArgument("-classpath", false);
+			commandLine.addArgument(this.classpath.build(), false);
+			commandLine.addArgument(this.mainClass);
+			return new CommonsExecWebServer(commandLine, this.applicationPortFile);
+		}
+
+		private String[] createSystemPropertyArgs() {
+			Map<String, String> systemPropertyArgs = new HashMap<>(this.systemProperties);
+			systemPropertyArgs.put("PORTFILE", this.applicationPortFile.getAbsolutePath());
+			systemPropertyArgs.put("server.port", "0");
+			return systemPropertyArgs.entrySet().stream()
+					.map(e -> "-D" + e.getKey() + "=" + e.getValue() + "")
+					.toArray(String[]::new);
+		}
+
+		public void destroy() {
+			this.classpath.cleanup();
+			FileSystemUtils.deleteRecursively(this.applicationPortFile);
+		}
+
+		private static String currentJavaExecutable() {
+			ProcessHandle processHandle = ProcessHandle.current();
+			return processHandle.info().command().get();
+		}
 	}
 }

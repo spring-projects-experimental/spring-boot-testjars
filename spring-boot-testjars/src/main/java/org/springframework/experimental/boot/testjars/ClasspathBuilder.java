@@ -16,15 +16,7 @@
 
 package org.springframework.experimental.boot.testjars;
 
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.util.FileSystemUtils;
-import org.springframework.util.function.ThrowingSupplier;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,13 +39,13 @@ public class ClasspathBuilder {
 		return this;
 	}
 
-	public String build() {
+	String build() {
 		return this.classpath.stream()
 				.flatMap(entry -> entry.resolve().stream())
 				.collect(Collectors.joining(File.pathSeparator));
 	}
 
-	public void cleanup() {
+	void cleanup() {
 		this.classpath.stream()
 			.forEachOrdered(ClasspathEntry::cleanup);
 	}
