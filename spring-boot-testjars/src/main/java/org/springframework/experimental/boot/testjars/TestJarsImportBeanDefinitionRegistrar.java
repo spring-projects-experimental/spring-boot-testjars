@@ -17,14 +17,21 @@
 package org.springframework.experimental.boot.testjars;
 
 import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.testcontainers.properties.TestcontainersPropertySource;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.MethodMetadata;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 
 
@@ -50,31 +57,51 @@ public class TestJarsImportBeanDefinitionRegistrar implements ImportBeanDefiniti
 	private void registerBeanDefinitions(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
 		String[] commandLineBeanNames = beanFactory.getBeanNamesForType(WebServerCommandLine.class);
 		DynamicPropertyRegistry properties = TestcontainersPropertySource.attach(this.environment);
-		for (String beanName : commandLineBeanNames) {
+		for (String cmdBeanName : commandLineBeanNames) {
+			BeanDefinition cmdBeanDefinition = registry.getBeanDefinition(cmdBeanName);
+			DynamicProperty dynamicProperty = null;
+			if (cmdBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+				MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+				MergedAnnotation<DynamicProperty> mergedDynamicProperty = metadata.getAnnotations().get(DynamicProperty.class);
+				dynamicProperty = mergedDynamicProperty.isPresent() ? mergedDynamicProperty.synthesize() : null;
+			}
+			else {
+				throw new RuntimeException("BeanDefinition of " + cmdBeanName + " is not AnnotatedBeanDefinition");
+			}
+			if (dynamicProperty == null) {
+				throw new RuntimeException("Missing @DynamicProperty annotation on BeanDefinition of " + cmdBeanName);
+			}
 			BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(TestJarContainer.class);
 			bean.addConstructorArgValue(properties);
-			bean.addConstructorArgReference(beanName);
-			registry.registerBeanDefinition(beanName + "WebServer", bean.getBeanDefinition());
+			bean.addConstructorArgReference(cmdBeanName);
+			bean.addConstructorArgValue(dynamicProperty);
+			registry.registerBeanDefinition(cmdBeanName + "WebServer", bean.getBeanDefinition());
 		}
 	}
 
 	static class TestJarContainer implements DisposableBean, FactoryBean<WebServer> {
-		private final CommonsExecWebServer server;
+		private final CommonsExecWebServer webServer;
 
-		TestJarContainer(DynamicPropertyRegistry properties, WebServerCommandLine commandLine) {
-			this.server = new CommonsExecWebServer(commandLine);
-			this.server.start();
-			properties.add("spring.security.oauth2.client.provider.spring.issuer-uri", () -> "http://127.0.0.1:" + this.server.getPort());
+		TestJarContainer(DynamicPropertyRegistry properties, WebServerCommandLine commandLine, DynamicProperty dynamicProperty) {
+			this.webServer = new CommonsExecWebServer(commandLine);
+			this.webServer.start();
+			ExpressionParser parser = new SpelExpressionParser();
+			Expression expression = parser.parseExpression(dynamicProperty.value(), null);
+			properties.add(dynamicProperty.name(), () -> expression.getValue(this, String.class));
+		}
+
+		public CommonsExecWebServer getWebServer() {
+			return this.webServer;
 		}
 
 		@Override
 		public void destroy() throws Exception {
-			this.server.stop();
+			this.webServer.stop();
 		}
 
 		@Override
 		public WebServer getObject() throws Exception {
-			return this.server;
+			return this.webServer;
 		}
 
 		@Override
