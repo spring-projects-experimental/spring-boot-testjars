@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.testjars;
+package org.springframework.experimental.boot.server.exec;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.testjars;
+package org.springframework.experimental.boot.server.exec;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.experimental.boot.server.exec.CommonsExecWebServer;
 
 import java.io.File;
 import java.net.URL;
