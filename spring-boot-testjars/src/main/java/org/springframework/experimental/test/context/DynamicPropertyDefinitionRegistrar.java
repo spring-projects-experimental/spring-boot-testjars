@@ -33,7 +33,10 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 
 
-public class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+/**
+ * Finds beans annotated with {@link DynamicProperty} and adds the properties to the Environment.
+ */
+class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
 	private final BeanFactory beanFactory;
 

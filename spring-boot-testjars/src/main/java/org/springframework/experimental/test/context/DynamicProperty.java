@@ -19,9 +19,32 @@ package org.springframework.experimental.test.context;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * Allows adding new properties to the environment using SpEL that has a root object of the bean that it annotations.
+ * For example, assuming {@code WebServer.getPort()} exists and returns {@code 1234} the following will assign a
+ * property named {@code service.url} with a value of {@code http://localhost:8080}:
+ *
+ * <code>
+ * @Bean
+ * @DynamicProperty(name = "service.url", value = "'http://localhost:' + port")
+ * WebServer messageService() {
+ *     ...
+ * }
+ * </code>
+ */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DynamicProperty {
+
+	/**
+	 * The name of the property to add
+	 * @return
+	 */
 	String name();
 
+	/**
+	 * A SpEL expression that has a root object of the bean that it annotations.
+	 * @return a SpEL expression that has a root object of the bean that it annotations. For example,
+	 * "'http://localhost:' + port".
+	 */
 	String value();
 }
