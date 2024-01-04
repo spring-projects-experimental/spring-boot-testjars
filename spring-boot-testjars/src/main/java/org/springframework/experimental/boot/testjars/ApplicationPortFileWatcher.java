@@ -44,7 +44,9 @@ final class ApplicationPortFileWatcher {
 	 */
 	public int getApplicationPort() {
 		Integer port;
+		// FIXME: remove print statement
 		System.out.println("Waiting on " + this.applicationPortFile);
+		// FIXME: Add a timeout
 		try (WatchService watch = FileSystems.getDefault().newWatchService()) {
 			this.applicationPortFile.getParentFile().toPath().register(watch, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
 			// check after we are watching for events, but before take an event if the file exists already

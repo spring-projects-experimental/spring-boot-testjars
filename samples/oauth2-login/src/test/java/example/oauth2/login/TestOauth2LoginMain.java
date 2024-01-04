@@ -16,29 +16,28 @@
 
 package example.oauth2.login;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.experimental.boot.testjars.CommonsExecWebServer;
 import org.springframework.experimental.boot.testjars.DynamicProperty;
-import org.springframework.experimental.boot.testjars.TestJarsImportBeanDefinitionRegistrar;
+import org.springframework.experimental.boot.testjars.DynamicPropertyDefinitionRegistrar;
 import org.springframework.experimental.boot.testjars.WebServerCommandLine;
-import org.springframework.test.context.DynamicPropertyRegistry;
 
 @TestConfiguration(proxyBeanMethods = false)
-@Import(TestJarsImportBeanDefinitionRegistrar.class)
+@Import(DynamicPropertyDefinitionRegistrar.class)
 class TestOauth2LoginMain {
 
 	@Bean
-	@DynamicProperty(name = "spring.security.oauth2.client.provider.spring.issuer-uri", value = "'http://127.0.0.1:' + ${webServer.port}")
-	static WebServerCommandLine springBootRunner() {
-		return WebServerCommandLine.builder()
-				.classpath(cp -> cp
+	@DynamicProperty(name = "spring.security.oauth2.client.provider.spring.issuer-uri", value = "'http://127.0.0.1:' + port")
+	static CommonsExecWebServer oauthServer() {
+		WebServerCommandLine cmd = WebServerCommandLine.builder()
+			.classpath(cp -> cp
 					.files("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
-				)
-				.build();
+			)
+			.build();
+		return new CommonsExecWebServer(cmd);
 	}
 
 	public static void main(String[] args) throws Exception {

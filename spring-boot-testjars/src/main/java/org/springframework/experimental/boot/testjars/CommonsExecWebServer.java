@@ -18,8 +18,13 @@ package org.springframework.experimental.boot.testjars;
 
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.server.WebServer;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * An implementation of {@link WebServer} that uses Apache Commons Exec.
@@ -29,9 +34,11 @@ import org.springframework.boot.web.server.WebServer;
  *
  * @author Rob Winch
  */
-public class CommonsExecWebServer implements WebServer {
+public class CommonsExecWebServer implements WebServer, InitializingBean, DisposableBean {
 
 	private final WebServerCommandLine commandLine;
+
+	private ExecuteWatchdog watchdog;
 
 	// FIXME: Concurrency issues
 	private boolean start;
@@ -40,15 +47,24 @@ public class CommonsExecWebServer implements WebServer {
 		this.commandLine = commandLine;
 	}
 
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		start();
+	}
+
+	@Override
+	public void destroy() {
+		stop();
+	}
+
 	public void start() {
 		if (this.start) {
 			return;
 		}
 		this.start = true;
-		System.out.println("Starting the application");
+		this.watchdog = new ExecuteWatchdog(TimeUnit.MINUTES.toMillis(15));
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
-		System.out.println("Execute");
 		DefaultExecuteResultHandler result = new DefaultExecuteResultHandler();
 		try {
 			executor.execute(this.commandLine, null, result);
@@ -59,7 +75,9 @@ public class CommonsExecWebServer implements WebServer {
 	}
 
 	public void stop() {
-		// FIXME: Should stop the process
+		if (this.watchdog != null) {
+			this.watchdog.destroyProcess();
+		}
 	}
 
 	public int getPort() {

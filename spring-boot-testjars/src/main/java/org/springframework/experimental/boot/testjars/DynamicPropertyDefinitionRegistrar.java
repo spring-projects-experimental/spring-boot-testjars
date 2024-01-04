@@ -16,14 +16,12 @@
 
 package org.springframework.experimental.boot.testjars;
 
-import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.testcontainers.properties.TestcontainersPropertySource;
-import org.springframework.boot.web.server.WebServer;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.Environment;
@@ -35,14 +33,13 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 
 
-// similar to ServiceConnectionAutoConfigurationRegistrar
-public class TestJarsImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+public class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
 	private final BeanFactory beanFactory;
 
 	private final Environment environment;
 
-	public TestJarsImportBeanDefinitionRegistrar(BeanFactory beanFactory, Environment environment) {
+	public DynamicPropertyDefinitionRegistrar(BeanFactory beanFactory, Environment environment) {
 		this.beanFactory = beanFactory;
 		this.environment = environment;
 	}
@@ -55,58 +52,25 @@ public class TestJarsImportBeanDefinitionRegistrar implements ImportBeanDefiniti
 	}
 
 	private void registerBeanDefinitions(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
-		String[] commandLineBeanNames = beanFactory.getBeanNamesForType(WebServerCommandLine.class);
 		DynamicPropertyRegistry properties = TestcontainersPropertySource.attach(this.environment);
-		for (String cmdBeanName : commandLineBeanNames) {
-			BeanDefinition cmdBeanDefinition = registry.getBeanDefinition(cmdBeanName);
+		ExpressionParser parser = new SpelExpressionParser();
+		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
+			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
 			DynamicProperty dynamicProperty = null;
-			if (cmdBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+			if (dynamicPropertyBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
 				MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
 				MergedAnnotation<DynamicProperty> mergedDynamicProperty = metadata.getAnnotations().get(DynamicProperty.class);
 				dynamicProperty = mergedDynamicProperty.isPresent() ? mergedDynamicProperty.synthesize() : null;
 			}
 			else {
-				throw new RuntimeException("BeanDefinition of " + cmdBeanName + " is not AnnotatedBeanDefinition");
+				throw new IllegalStateException("BeanDefinition of " + dynamicPropertyBeanName + " is not AnnotatedBeanDefinition");
 			}
 			if (dynamicProperty == null) {
-				throw new RuntimeException("Missing @DynamicProperty annotation on BeanDefinition of " + cmdBeanName);
+				throw new IllegalStateException("Missing @DynamicProperty annotation on BeanDefinition of " + dynamicPropertyBeanName);
 			}
-			BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(TestJarContainer.class);
-			bean.addConstructorArgValue(properties);
-			bean.addConstructorArgReference(cmdBeanName);
-			bean.addConstructorArgValue(dynamicProperty);
-			registry.registerBeanDefinition(cmdBeanName + "WebServer", bean.getBeanDefinition());
+			Expression expression = parser.parseExpression(dynamicProperty.value());
+			properties.add(dynamicProperty.name(), () -> expression.getValue(beanFactory.getBean(dynamicPropertyBeanName), String.class));
 		}
 	}
 
-	static class TestJarContainer implements DisposableBean, FactoryBean<WebServer> {
-		private final CommonsExecWebServer webServer;
-
-		TestJarContainer(DynamicPropertyRegistry properties, WebServerCommandLine commandLine, DynamicProperty dynamicProperty) {
-			this.webServer = new CommonsExecWebServer(commandLine);
-			this.webServer.start();
-			ExpressionParser parser = new SpelExpressionParser();
-			Expression expression = parser.parseExpression(dynamicProperty.value(), null);
-			properties.add(dynamicProperty.name(), () -> expression.getValue(this, String.class));
-		}
-
-		public CommonsExecWebServer getWebServer() {
-			return this.webServer;
-		}
-
-		@Override
-		public void destroy() throws Exception {
-			this.webServer.stop();
-		}
-
-		@Override
-		public WebServer getObject() throws Exception {
-			return this.webServer;
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-			return CommonsExecWebServer.class;
-		}
-	}
 }
