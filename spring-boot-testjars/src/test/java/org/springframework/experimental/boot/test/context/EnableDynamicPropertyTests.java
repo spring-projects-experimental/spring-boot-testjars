@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
-import org.springframework.experimental.boot.test.context.DynamicProperty;
-import org.springframework.experimental.boot.test.context.EnableDynamicProperty;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,12 +45,4 @@ class EnableDynamicPropertyTests {
 		}
 	}
 
-	/**
-	 * A mock to emulate returning a server port.
-	 */
-	static class WebServer {
-		public int getPort() {
-			return 1234;
-		}
-	}
 }

@@ -25,6 +25,7 @@ import org.springframework.boot.testcontainers.properties.TestcontainersProperty
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.expression.Expression;
@@ -32,11 +33,15 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 
+import java.util.function.Supplier;
+
 
 /**
  * Finds beans annotated with {@link DynamicProperty} and adds the properties to the Environment.
  */
 class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+
+	private final ExpressionParser parser = new SpelExpressionParser();
 
 	private final BeanFactory beanFactory;
 
@@ -54,26 +59,35 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 		}
 	}
 
+	DynamicPropertyRegistryProperty createRegistryProperty(AnnotatedTypeMetadata metadata, Supplier<Object> rootObject) {
+		MergedAnnotation<DynamicProperty> mergedDynamicProperty = metadata.getAnnotations().get(DynamicProperty.class);
+		DynamicProperty dynamicProperty = mergedDynamicProperty.isPresent() ? mergedDynamicProperty.synthesize() : null;
+		if (dynamicProperty == null) {
+			return null;
+		}
+		Expression expression = parser.parseExpression(dynamicProperty.value());
+		return new DynamicPropertyRegistryProperty(dynamicProperty.name(), () -> expression.getValue(rootObject.get()));
+	}
+
 	private void registerBeanDefinitions(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
 		DynamicPropertyRegistry properties = TestcontainersPropertySource.attach(this.environment);
-		ExpressionParser parser = new SpelExpressionParser();
 		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
 			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
-			DynamicProperty dynamicProperty = null;
-			if (dynamicPropertyBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
-				MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
-				MergedAnnotation<DynamicProperty> mergedDynamicProperty = metadata.getAnnotations().get(DynamicProperty.class);
-				dynamicProperty = mergedDynamicProperty.isPresent() ? mergedDynamicProperty.synthesize() : null;
-			}
-			else {
-				throw new IllegalStateException("BeanDefinition of " + dynamicPropertyBeanName + " is not AnnotatedBeanDefinition");
-			}
-			if (dynamicProperty == null) {
+			DynamicPropertyRegistryProperty property = createRegistryProperty(dynamicPropertyBeanDefinition, dynamicPropertyBeanName);
+			if (property == null) {
 				throw new IllegalStateException("Missing @DynamicProperty annotation on BeanDefinition of " + dynamicPropertyBeanName);
 			}
-			Expression expression = parser.parseExpression(dynamicProperty.value());
-			properties.add(dynamicProperty.name(), () -> expression.getValue(beanFactory.getBean(dynamicPropertyBeanName), String.class));
+			properties.add(property.name(), property.value());
 		}
 	}
 
+	private DynamicPropertyRegistryProperty createRegistryProperty(BeanDefinition dynamicPropertyBeanDefinition, String dynamicPropertyBeanName) {
+		if (dynamicPropertyBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+			MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+			return createRegistryProperty(metadata, () -> this.beanFactory.getBean(dynamicPropertyBeanName));
+		}
+		return null;
+	}
+	record DynamicPropertyRegistryProperty(String name, Supplier<Object> value) {
+	}
 }
