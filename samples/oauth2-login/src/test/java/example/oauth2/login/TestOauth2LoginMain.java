@@ -32,7 +32,7 @@ class TestOauth2LoginMain {
 	static CommonsExecWebServer oauthServer() {
 		return CommonsExecWebServer.builder()
 			.classpath(cp -> cp
-					.files("/home/rwinch/code/rwinch/spring-boot-testjars/samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+					.files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
 			)
 			.build();
 	}
