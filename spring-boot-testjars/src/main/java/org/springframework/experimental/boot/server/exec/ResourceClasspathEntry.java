@@ -16,8 +16,6 @@
 
 package org.springframework.experimental.boot.server.exec;
 
-import org.springframework.util.FileSystemUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -26,7 +24,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.util.FileSystemUtils;
+
 public class ResourceClasspathEntry implements ClasspathEntry {
+
 	private final String existingResourceName;
 
 	private final String classpathResourceName;
@@ -43,17 +44,19 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 		if (this.classpath == null) {
 			try {
 				this.classpath = Files.createTempDirectory("classpath-");
-				InputStream resource = getClass().getClassLoader().getResourceAsStream(existingResourceName);
+				InputStream resource = getClass().getClassLoader().getResourceAsStream(this.existingResourceName);
 				try {
-					Path destination = this.classpath.resolve(classpathResourceName);
+					Path destination = this.classpath.resolve(this.classpathResourceName);
 					destination.toFile().getParentFile().mkdirs();
 					Files.copy(resource, destination, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					throw new RuntimeException("Failed to copy existingResourceName '" + existingResourceName + "' to '" + classpathResourceName + "'", e);
+				}
+				catch (IOException ex) {
+					throw new RuntimeException("Failed to copy existingResourceName '" + this.existingResourceName
+							+ "' to '" + this.classpathResourceName + "'", ex);
 				}
 			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
+			catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 		return Arrays.asList(this.classpath.toFile().getAbsolutePath());
@@ -63,8 +66,9 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 		try {
 			FileSystemUtils.deleteRecursively(this.classpath);
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
+
 }

@@ -16,18 +16,19 @@
 
 package org.springframework.experimental.boot.test.context;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.core.annotation.AliasFor;
+
 /**
  * A composed annotation for {@link DynamicProperty} for specifying the property name
- * "spring.security.oauth2.client.provider.${providerName}.issuer-uri" such that providerName's value is specified by
- * {@link #providerName()}.
+ * "spring.security.oauth2.client.provider.${providerName}.issuer-uri" such that
+ * providerName's value is specified by {@link #providerName()}.
+ *
  * @author Rob Winch
  */
 @Target(ElementType.METHOD)
@@ -37,15 +38,17 @@ import java.lang.annotation.Target;
 public @interface OAuth2ClientProviderIssuerUri {
 
 	/**
-	 * Allows overriding the value of the property. The default is "'http://127.0.0.1:' + port".
-	 * @return
+	 * Allows overriding the value of the property. The default is "'http://127.0.0.1:' +
+	 * port".
+	 * @return the value of the property.
 	 */
 	@AliasFor(annotation = DynamicProperty.class)
 	String value() default "'http://127.0.0.1:' + port";
 
 	/**
-	 * Allows overriding the providerName portion of the property name.
-	 * @return
+	 * Allows overriding the providerName portion of the property name. Default is
+	 * "spring".
+	 * @return the name of the provider used in the property name.
 	 */
 	String providerName() default "spring";
 

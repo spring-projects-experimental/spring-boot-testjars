@@ -29,9 +29,11 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.test.context.DynamicPropertyRegistry;
 
-
 /**
- * Finds beans annotated with {@link DynamicProperty} and adds the properties to the Environment.
+ * Finds beans annotated with {@link DynamicProperty} and adds the properties to the
+ * Environment.
+ *
+ * @author Rob Winch
  */
 class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
@@ -41,7 +43,7 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 
 	private final Environment environment;
 
-	public DynamicPropertyDefinitionRegistrar(BeanFactory beanFactory, Environment environment) {
+	DynamicPropertyDefinitionRegistrar(BeanFactory beanFactory, Environment environment) {
 		this.registryPropertyFactory = new DynamicPropertyRegistryPropertyFactory();
 		this.beanFactory = beanFactory;
 		this.environment = environment;
@@ -58,20 +60,26 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 		DynamicPropertyRegistry properties = TestcontainersPropertySource.attach(this.environment);
 		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
 			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
-			DynamicPropertyRegistryProperty property = createRegistryProperty(dynamicPropertyBeanDefinition, dynamicPropertyBeanName);
+			DynamicPropertyRegistryProperty property = createRegistryProperty(dynamicPropertyBeanDefinition,
+					dynamicPropertyBeanName);
 			if (property == null) {
-				throw new IllegalStateException("Missing @DynamicProperty annotation on BeanDefinition of " + dynamicPropertyBeanName);
+				throw new IllegalStateException(
+						"Missing @DynamicProperty annotation on BeanDefinition of " + dynamicPropertyBeanName);
 			}
 			properties.add(property.name(), property.value());
 		}
 	}
 
-	private DynamicPropertyRegistryProperty createRegistryProperty(BeanDefinition dynamicPropertyBeanDefinition, String dynamicPropertyBeanName) {
+	private DynamicPropertyRegistryProperty createRegistryProperty(BeanDefinition dynamicPropertyBeanDefinition,
+			String dynamicPropertyBeanName) {
 		if (dynamicPropertyBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
 			MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
-			MergedAnnotation<DynamicProperty> dynamicPropertyMergedAnnotation = metadata.getAnnotations().get(DynamicProperty.class);
-			return this.registryPropertyFactory.createRegistryProperty(dynamicPropertyMergedAnnotation, () -> this.beanFactory.getBean(dynamicPropertyBeanName));
+			MergedAnnotation<DynamicProperty> dynamicPropertyMergedAnnotation = metadata.getAnnotations()
+					.get(DynamicProperty.class);
+			return this.registryPropertyFactory.createRegistryProperty(dynamicPropertyMergedAnnotation,
+					() -> this.beanFactory.getBean(dynamicPropertyBeanName));
 		}
 		return null;
 	}
+
 }

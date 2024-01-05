@@ -18,11 +18,18 @@ package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 
 /**
- * Use {@link #getApplicationPort()} to block until {@link #applicationPortFile} is created and has content to read the
- * contents of the file as an integer that represents the application port.
+ * Use {@link #getApplicationPort()} to block until {@link #applicationPortFile} is
+ * created and has content to read the contents of the file as an integer that represents
+ * the application port.
+ *
+ * @author Rob Winch
  */
 final class ApplicationPortFileWatcher {
 
@@ -30,33 +37,36 @@ final class ApplicationPortFileWatcher {
 
 	/**
 	 * Create a new instance.
-	 * @param applicationPortFile
+	 * @param applicationPortFile the file to read the application port from
 	 */
 	ApplicationPortFileWatcher(File applicationPortFile) {
 		this.applicationPortFile = applicationPortFile;
 	}
 
 	/**
-	 * Returns the port from the contents of the {@link #applicationPortFile} once content is available. If
-	 * the {@link File} does not exist, or there is no content, then it blocks until both conditions are
-	 * true.
+	 * Returns the port from the contents of the {@link #applicationPortFile} once content
+	 * is available. If the {@link File} does not exist, or there is no content, then it
+	 * blocks until both conditions are true.
 	 * @return the port number from the {@link #applicationPortFile}
 	 */
-	public int getApplicationPort() {
+	int getApplicationPort() {
 		Integer port;
 		// FIXME: remove print statement
 		System.out.println("Waiting on " + this.applicationPortFile);
 		// FIXME: Add a timeout
 		try (WatchService watch = FileSystems.getDefault().newWatchService()) {
-			this.applicationPortFile.getParentFile().toPath().register(watch, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
-			// check after we are watching for events, but before take an event if the file exists already
+			this.applicationPortFile.getParentFile().toPath().register(watch, StandardWatchEventKinds.ENTRY_CREATE,
+					StandardWatchEventKinds.ENTRY_MODIFY);
+			// check after we are watching for events, but before take an event if the
+			// file exists already
 			port = readPort();
 			WatchKey watchKey;
 			while (port == null) {
 				try {
 					watchKey = watch.take();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+				}
+				catch (InterruptedException ex) {
+					throw new RuntimeException(ex);
 				}
 				port = readPort();
 				watchKey.reset();
@@ -64,8 +74,9 @@ final class ApplicationPortFileWatcher {
 					return port;
 				}
 			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		}
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 		return port;
 	}

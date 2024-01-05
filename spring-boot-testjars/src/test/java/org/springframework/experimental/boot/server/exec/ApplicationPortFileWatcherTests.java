@@ -16,13 +16,12 @@
 
 package org.springframework.experimental.boot.server.exec;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.springframework.experimental.boot.server.exec.ApplicationPortFileWatcher;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,9 +55,7 @@ class ApplicationPortFileWatcherTests {
 		File applicationPort = applicationPortPath.toFile();
 		assertThat(applicationPort).doesNotExist();
 		ApplicationPortFileWatcher watcher = new ApplicationPortFileWatcher(applicationPort);
-		delay(() -> {
-			Files.writeString(applicationPortPath, String.valueOf(expectedPort));
-		});
+		delay(() -> Files.writeString(applicationPortPath, String.valueOf(expectedPort)));
 		assertThat(watcher.getApplicationPort()).isEqualTo(expectedPort);
 	}
 
@@ -77,10 +74,11 @@ class ApplicationPortFileWatcherTests {
 				}
 				invoke();
 			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
+			catch (Exception ex) {
+				throw new RuntimeException(ex);
 			}
 		}
+
 	}
 
 }

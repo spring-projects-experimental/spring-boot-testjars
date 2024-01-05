@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.test.context;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.context.annotation.Import;
-
 /**
- * Adds support for {@link DynamicProperty}.
- *
- * @author Rob Winch
+ * Provides {@link org.springframework.boot.web.server.WebServer} that is started via a
+ * command.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Documented
-@Import(DynamicPropertyDefinitionRegistrar.class)
-public @interface EnableDynamicProperty {
-
-}
+package org.springframework.experimental.boot.server.exec;

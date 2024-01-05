@@ -16,14 +16,15 @@
 
 package org.springframework.experimental.boot.test.context;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +38,8 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Test
 	void dynamicPropertyWhenDefault() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("dynamicProperty");
-		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("foo");
 		assertThat(registryProperty.value().get()).isEqualTo("bar");
 	}
@@ -45,7 +47,8 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Test
 	void issuerUriWhenDefaults() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUri");
-		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo(NAME);
 		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234");
 	}
@@ -53,7 +56,8 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Test
 	void issuerUriWhenOverrideValue() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUriWithOverriddenValue");
-		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo(NAME);
 		assertThat(registryProperty.value().get()).isEqualTo("http://localhost:1234");
 	}
@@ -61,7 +65,8 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Test
 	void issuerUriWhenOverrideProviderName() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUriWithOverriddenProviderName");
-		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("spring.security.oauth2.client.provider.providerName.issuer-uri");
 		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234");
 	}
@@ -69,7 +74,8 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Test
 	void issuerUriWhenValueWithVariable() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("valueWithVariable");
-		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("message");
 		assertThat(registryProperty.value().get()).isEqualTo("Hello Rob");
 	}
@@ -94,7 +100,6 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 
 	}
 
-
 	@OAuth2ClientProviderIssuerUri(providerName = "providerName")
 	static void issueUriWithOverriddenProviderName() {
 
@@ -108,6 +113,9 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@DynamicProperty(name = "message", value = "'Hello ${firstName}'")
 	@interface ValueWithVariable {
+
 		String firstName();
+
 	}
+
 }

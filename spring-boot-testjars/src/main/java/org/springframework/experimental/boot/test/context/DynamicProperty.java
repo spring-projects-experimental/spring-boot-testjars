@@ -23,13 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows adding new properties to the environment using SpEL that has a root object of the bean that it annotations.
- * For example, assuming {@code WebServer.getPort()} exists and returns {@code 1234} the following will assign a
- * property named {@code service.url} with a value of {@code http://localhost:8080}:
+ * Allows adding new properties to the environment using SpEL that has a root object of
+ * the bean that it annotations. For example, assuming {@code WebServer.getPort()} exists
+ * and returns {@code 1234} the following will assign a property named {@code service.url}
+ * with a value of {@code http://localhost:8080}:
  *
  * <code>
- * @Bean
- * @DynamicProperty(name = "service.url", value = "'http://localhost:' + port")
+ * &#64;Bean
+ * &#64;DynamicProperty(name = "service.url", value = "'http://localhost:' + port")
  * WebServer messageService() {
  *     ...
  * }
@@ -40,22 +41,26 @@ import java.lang.annotation.Target;
  * <code>
  *
  * </code>
+ *
+ * @author Rob Winch
  */
-@Target({ElementType.METHOD,ElementType.ANNOTATION_TYPE})
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DynamicProperty {
 
 	/**
-	 * The name of the property to add
-	 * @return
+	 * The name of the property to add. Can contain variables referring to composted
+	 * annotation values.
+	 * @return The name of the property to add.
 	 */
 	String name();
 
 	/**
 	 * A SpEL expression that has a root object of the bean that it annotations.
-	 * @return a SpEL expression that has a root object of the bean that it annotations. For example,
-	 * "'http://localhost:' + port".
+	 * @return a SpEL expression that has a root object of the bean that it annotations.
+	 * For example, "'http://localhost:' + port".
 	 */
 	String value();
+
 }

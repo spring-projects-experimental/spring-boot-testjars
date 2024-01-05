@@ -16,12 +16,6 @@
 
 package org.springframework.experimental.boot.server.exec;
 
-import org.apache.commons.exec.*;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.web.server.WebServer;
-import org.springframework.util.FileSystemUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,15 +23,27 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.web.server.WebServer;
+import org.springframework.util.FileSystemUtils;
+
 /**
  * An implementation of {@link WebServer} that uses Apache Commons Exec.
  *
- * FIXME: The interface WebServer is not ideal since it cannot implment a graceful shutdown. We also want start shutdown
- * method to be called as a Bean lifecycle method. Consider a new interface (e.g.
+ * FIXME: The interface WebServer is not ideal since it cannot implment a graceful
+ * shutdown. We also want start shutdown method to be called as a Bean lifecycle method.
+ * Consider a new interface (e.g.
  *
  * @author Rob Winch
  */
-public class CommonsExecWebServer implements WebServer, InitializingBean, DisposableBean {
+public final class CommonsExecWebServer implements WebServer, InitializingBean, DisposableBean {
 
 	private final CommandLine commandLine;
 
@@ -74,8 +80,9 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 		DefaultExecuteResultHandler result = new DefaultExecuteResultHandler();
 		try {
 			executor.execute(this.commandLine, null, result);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to run the command", e);
+		}
+		catch (Exception ex) {
+			throw new RuntimeException("Failed to run the command", ex);
 		}
 		System.out.println("Done Execute");
 	}
@@ -87,19 +94,21 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 	}
 
 	public int getPort() {
-		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(this.applicationPortFile);
+		ApplicationPortFileWatcher applicationPortFileWatcher = new ApplicationPortFileWatcher(
+				this.applicationPortFile);
 		return applicationPortFileWatcher.getApplicationPort();
 	}
 
 	CommandLine getCommandLine() {
-		return commandLine;
+		return this.commandLine;
 	}
 
 	public static CommonsExecWebServerBuilder builder() {
 		return new CommonsExecWebServerBuilder();
 	}
 
-	public static class CommonsExecWebServerBuilder {
+	public static final class CommonsExecWebServerBuilder {
+
 		private String executable = currentJavaExecutable();
 
 		private ClasspathBuilder classpath = new ClasspathBuilder();
@@ -111,15 +120,18 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 		private File applicationPortFile = createApplicationPortFile();
 
 		private CommonsExecWebServerBuilder() {
-			this.classpath.entries(new ResourceClasspathEntry("org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories", "META-INF/spring.factories"));
+			this.classpath.entries(new ResourceClasspathEntry(
+					"org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories",
+					"META-INF/spring.factories"));
 		}
 
 		private static File createApplicationPortFile() {
 			try {
 				// FIXME: Review if we have a temp file CVE here
 				return File.createTempFile("application-", ".port");
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			}
+			catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 
@@ -146,8 +158,7 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 			Map<String, String> systemPropertyArgs = new HashMap<>(this.systemProperties);
 			systemPropertyArgs.put("PORTFILE", this.applicationPortFile.getAbsolutePath());
 			systemPropertyArgs.put("server.port", "0");
-			return systemPropertyArgs.entrySet().stream()
-					.map(e -> "-D" + e.getKey() + "=" + e.getValue() + "")
+			return systemPropertyArgs.entrySet().stream().map((e) -> "-D" + e.getKey() + "=" + e.getValue() + "")
 					.toArray(String[]::new);
 		}
 
@@ -160,5 +171,7 @@ public class CommonsExecWebServer implements WebServer, InitializingBean, Dispos
 			ProcessHandle processHandle = ProcessHandle.current();
 			return processHandle.info().command().get();
 		}
+
 	}
+
 }

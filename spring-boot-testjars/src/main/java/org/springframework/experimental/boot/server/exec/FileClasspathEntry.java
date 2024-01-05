@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FileClasspathEntry implements ClasspathEntry {
+
 	private final File file;
 
 	public FileClasspathEntry(String file) {

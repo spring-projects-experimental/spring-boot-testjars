@@ -27,26 +27,22 @@ public class ClasspathBuilder {
 	private List<ClasspathEntry> classpath = new ArrayList<>();
 
 	public ClasspathBuilder entries(ClasspathEntry... entries) {
-		Arrays.stream(entries)
-			.forEachOrdered(this.classpath::add);
+		Arrays.stream(entries).forEachOrdered(this.classpath::add);
 		return this;
 	}
 
 	public ClasspathBuilder files(String... classpathEntries) {
-		Arrays.stream(classpathEntries)
-				.map(FileClasspathEntry::new)
-				.forEachOrdered(this.classpath::add);
+		Arrays.stream(classpathEntries).map(FileClasspathEntry::new).forEachOrdered(this.classpath::add);
 		return this;
 	}
 
 	String build() {
-		return this.classpath.stream()
-				.flatMap(entry -> entry.resolve().stream())
+		return this.classpath.stream().flatMap((entry) -> entry.resolve().stream())
 				.collect(Collectors.joining(File.pathSeparator));
 	}
 
 	void cleanup() {
-		this.classpath.stream()
-			.forEachOrdered(ClasspathEntry::cleanup);
+		this.classpath.stream().forEachOrdered(ClasspathEntry::cleanup);
 	}
+
 }

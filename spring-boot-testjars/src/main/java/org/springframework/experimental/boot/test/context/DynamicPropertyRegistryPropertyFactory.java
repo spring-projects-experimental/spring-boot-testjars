@@ -16,6 +16,10 @@
 
 package org.springframework.experimental.boot.test.context;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
@@ -24,31 +28,31 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
-
 /**
- * Creates a {@link DynamicPropertyRegistryProperty} from the {@link DynamicProperty} annotation.
+ * Creates a {@link DynamicPropertyRegistryProperty} from the {@link DynamicProperty}
+ * annotation.
+ *
  * @author Rob Winch
  */
 class DynamicPropertyRegistryPropertyFactory {
 
 	private final ExpressionParser parser = new SpelExpressionParser();
 
-	DynamicPropertyRegistryProperty createRegistryProperty(MergedAnnotation<DynamicProperty> mergedAnnotation, Supplier<Object> rootObject) {
+	DynamicPropertyRegistryProperty createRegistryProperty(MergedAnnotation<DynamicProperty> mergedAnnotation,
+			Supplier<Object> rootObject) {
 		DynamicProperty dynamicProperty = mergedAnnotation.isPresent() ? mergedAnnotation.synthesize() : null;
 		if (dynamicProperty == null) {
 			return null;
 		}
 		MutablePropertySources propertySources = new MutablePropertySources();
 		MergedAnnotation<?> metaSource = mergedAnnotation.getMetaSource();
-		Map<String, Object> annotationProperties = metaSource == null ? new HashMap<>() : metaSource.asMap();
+		Map<String, Object> annotationProperties = (metaSource != null) ? metaSource.asMap() : new HashMap<>();
 		propertySources.addFirst(new MapPropertySource("dynamicProperty", annotationProperties));
 		PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
 		String value = propertyResolver.resolvePlaceholders(dynamicProperty.value());
 		String name = propertyResolver.resolvePlaceholders(dynamicProperty.name());
-		Expression expression = parser.parseExpression(value);
+		Expression expression = this.parser.parseExpression(value);
 		return new DynamicPropertyRegistryProperty(name, () -> expression.getValue(rootObject.get()));
 	}
+
 }

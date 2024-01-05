@@ -18,6 +18,7 @@ package org.springframework.experimental.boot.test.context;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,8 @@ class OAuth2ClientProviderIssuerUriTests {
 
 	@Test
 	void dynamicPropertyJavadoc(@Autowired Environment environment) {
-		assertThat(environment.getProperty("spring.security.oauth2.client.provider.spring.issuer-uri")).isEqualTo("http://127.0.0.1:1234");
+		assertThat(environment.getProperty("spring.security.oauth2.client.provider.spring.issuer-uri"))
+				.isEqualTo("http://127.0.0.1:1234");
 	}
 
 	@EnableDynamicProperty
@@ -43,5 +45,7 @@ class OAuth2ClientProviderIssuerUriTests {
 		static WebServer messageService() {
 			return new WebServer();
 		}
+
 	}
+
 }

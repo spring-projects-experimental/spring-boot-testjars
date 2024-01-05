@@ -19,9 +19,11 @@ package org.springframework.experimental.boot.test.context;
 import java.util.function.Supplier;
 
 /**
- * The evaluated (properties have been replaced and SpEL evaluated) name and value from a {@link DynamicProperty}
- * @param name
- * @param value
+ * The evaluated (properties have been replaced and SpEL evaluated) name and value from a
+ * {@link DynamicProperty}.
+ * @param name the evaluated name of the property.
+ * @param value the evaluated value of the property.
+ *
  * @author Rob Winch
  */
 record DynamicPropertyRegistryProperty(String name, Supplier<Object> value) {

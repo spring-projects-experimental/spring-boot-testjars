@@ -16,14 +16,13 @@
 
 package org.springframework.experimental.boot.server.exec;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.experimental.boot.server.exec.CommonsExecWebServer;
-
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,8 +30,7 @@ class WebServerCommandLineTests {
 
 	@Test
 	void classpathContainsSpringFactories() throws Exception {
-		CommonsExecWebServer server = CommonsExecWebServer.builder()
-				.build();
+		CommonsExecWebServer server = CommonsExecWebServer.builder().build();
 		List<String> args = Arrays.asList(server.getCommandLine().getArguments());
 		int index = args.indexOf("-classpath");
 		assertThat(index).isGreaterThanOrEqualTo(0);
@@ -42,4 +40,5 @@ class WebServerCommandLineTests {
 		assertThat(loader.findResource("META-INF/spring.factories")).isNotNull();
 		server.destroy();
 	}
+
 }
