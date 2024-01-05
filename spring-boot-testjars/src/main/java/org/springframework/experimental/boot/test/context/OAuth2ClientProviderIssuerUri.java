@@ -16,6 +16,8 @@
 
 package org.springframework.experimental.boot.test.context;
 
+import org.springframework.core.annotation.AliasFor;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,39 +25,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows adding new properties to the environment using SpEL that has a root object of the bean that it annotations.
- * For example, assuming {@code WebServer.getPort()} exists and returns {@code 1234} the following will assign a
- * property named {@code service.url} with a value of {@code http://localhost:8080}:
- *
- * <code>
- * @Bean
- * @DynamicProperty(name = "service.url", value = "'http://localhost:' + port")
- * WebServer messageService() {
- *     ...
- * }
- * </code>
- *
- * Meta Annotations are also supported. For example:
- *
- * <code>
- *
- * </code>
+ * A composed annotation for {@link DynamicProperty} for specifying the property name
+ * "spring.security.oauth2.client.provider.${providerName}.issuer-uri" such that providerName's value is specified by
+ * {@link #providerName()}.
  */
-@Target({ElementType.METHOD,ElementType.ANNOTATION_TYPE})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface DynamicProperty {
+@DynamicProperty(name = "spring.security.oauth2.client.provider.${providerName}.issuer-uri", value = "")
+public @interface OAuth2ClientProviderIssuerUri {
 
 	/**
-	 * The name of the property to add
+	 * Allows overriding the value of the property. The default is "'http://127.0.0.1:' + port".
 	 * @return
 	 */
-	String name();
+	@AliasFor(annotation = DynamicProperty.class)
+	String value() default "'http://127.0.0.1:' + port";
 
 	/**
-	 * A SpEL expression that has a root object of the bean that it annotations.
-	 * @return a SpEL expression that has a root object of the bean that it annotations. For example,
-	 * "'http://localhost:' + port".
+	 * Allows overriding the providerName portion of the property name.
+	 * @return
 	 */
-	String value();
+	String providerName() default "spring";
+
 }

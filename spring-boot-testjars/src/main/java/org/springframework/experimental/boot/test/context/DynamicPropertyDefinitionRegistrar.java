@@ -25,6 +25,9 @@ import org.springframework.boot.testcontainers.properties.TestcontainersProperty
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
@@ -32,7 +35,10 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 
@@ -59,14 +65,20 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 		}
 	}
 
-	DynamicPropertyRegistryProperty createRegistryProperty(AnnotatedTypeMetadata metadata, Supplier<Object> rootObject) {
-		MergedAnnotation<DynamicProperty> mergedDynamicProperty = metadata.getAnnotations().get(DynamicProperty.class);
-		DynamicProperty dynamicProperty = mergedDynamicProperty.isPresent() ? mergedDynamicProperty.synthesize() : null;
+	DynamicPropertyRegistryProperty createRegistryProperty(MergedAnnotation<DynamicProperty> mergedAnnotation, Supplier<Object> rootObject) {
+		DynamicProperty dynamicProperty = mergedAnnotation.isPresent() ? mergedAnnotation.synthesize() : null;
 		if (dynamicProperty == null) {
 			return null;
 		}
-		Expression expression = parser.parseExpression(dynamicProperty.value());
-		return new DynamicPropertyRegistryProperty(dynamicProperty.name(), () -> expression.getValue(rootObject.get()));
+		MutablePropertySources propertySources = new MutablePropertySources();
+		MergedAnnotation<?> metaSource = mergedAnnotation.getMetaSource();
+		Map<String, Object> annotationProperties = metaSource == null ? new HashMap<>() : metaSource.asMap();
+		propertySources.addFirst(new MapPropertySource("dynamicProperty", annotationProperties));
+		PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
+		String value = propertyResolver.resolvePlaceholders(dynamicProperty.value());
+		String name = propertyResolver.resolvePlaceholders(dynamicProperty.name());
+		Expression expression = parser.parseExpression(value);
+		return new DynamicPropertyRegistryProperty(name, () -> expression.getValue(rootObject.get()));
 	}
 
 	private void registerBeanDefinitions(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
@@ -84,7 +96,8 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 	private DynamicPropertyRegistryProperty createRegistryProperty(BeanDefinition dynamicPropertyBeanDefinition, String dynamicPropertyBeanName) {
 		if (dynamicPropertyBeanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
 			MethodMetadata metadata = annotatedBeanDefinition.getFactoryMethodMetadata();
-			return createRegistryProperty(metadata, () -> this.beanFactory.getBean(dynamicPropertyBeanName));
+			MergedAnnotation<DynamicProperty> dynamicPropertyMergedAnnotation = metadata.getAnnotations().get(DynamicProperty.class);
+			return createRegistryProperty(dynamicPropertyMergedAnnotation, () -> this.beanFactory.getBean(dynamicPropertyBeanName));
 		}
 		return null;
 	}
