@@ -1,12 +1,26 @@
+/*
+ * Copyright 2012-2023 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.experimental.boot.test.context;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.experimental.boot.test.context.DynamicPropertyDefinitionRegistrar.DynamicPropertyRegistryProperty;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,17 +28,16 @@ import java.lang.annotation.RetentionPolicy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class DynamicPropertyDefinitionRegistrarTests {
+class DynamicPropertyRegistryPropertyFactoryTests {
 
 	private static final String NAME = "spring.security.oauth2.client.provider.spring.issuer-uri";
 
-	@InjectMocks
-	private DynamicPropertyDefinitionRegistrar registrar;
+	private DynamicPropertyRegistryPropertyFactory propertyFactory = new DynamicPropertyRegistryPropertyFactory();
 
 	@Test
 	void dynamicPropertyWhenDefault() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("dynamicProperty");
-		DynamicPropertyRegistryProperty registryProperty = this.registrar.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("foo");
 		assertThat(registryProperty.value().get()).isEqualTo("bar");
 	}
@@ -32,7 +45,7 @@ class DynamicPropertyDefinitionRegistrarTests {
 	@Test
 	void issuerUriWhenDefaults() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUri");
-		DynamicPropertyRegistryProperty registryProperty = this.registrar.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo(NAME);
 		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234");
 	}
@@ -40,7 +53,7 @@ class DynamicPropertyDefinitionRegistrarTests {
 	@Test
 	void issuerUriWhenOverrideValue() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUriWithOverriddenValue");
-		DynamicPropertyRegistryProperty registryProperty = this.registrar.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo(NAME);
 		assertThat(registryProperty.value().get()).isEqualTo("http://localhost:1234");
 	}
@@ -48,7 +61,7 @@ class DynamicPropertyDefinitionRegistrarTests {
 	@Test
 	void issuerUriWhenOverrideProviderName() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("issueUriWithOverriddenProviderName");
-		DynamicPropertyRegistryProperty registryProperty = this.registrar.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("spring.security.oauth2.client.provider.providerName.issuer-uri");
 		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234");
 	}
@@ -56,7 +69,7 @@ class DynamicPropertyDefinitionRegistrarTests {
 	@Test
 	void issuerUriWhenValueWithVariable() throws Exception {
 		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("valueWithVariable");
-		DynamicPropertyRegistryProperty registryProperty = this.registrar.createRegistryProperty(dynamicProperty, () -> new WebServer());
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty, () -> new WebServer());
 		assertThat(registryProperty.name()).isEqualTo("message");
 		assertThat(registryProperty.value().get()).isEqualTo("Hello Rob");
 	}
