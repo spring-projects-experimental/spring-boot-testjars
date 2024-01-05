@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * A composed annotation for {@link DynamicProperty} for specifying the property name
  * "spring.security.oauth2.client.provider.${providerName}.issuer-uri" such that providerName's value is specified by
  * {@link #providerName()}.
+ * @author Rob Winch
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

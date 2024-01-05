@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 
 /**
  * Adds support for {@link DynamicProperty}
+ * @author Rob Winch
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
