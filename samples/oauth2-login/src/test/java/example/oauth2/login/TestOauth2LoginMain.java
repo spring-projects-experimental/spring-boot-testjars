@@ -20,19 +20,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.experimental.boot.server.exec.CommonsExecWebServer;
-import org.springframework.experimental.boot.test.context.DynamicProperty;
 import org.springframework.experimental.boot.test.context.EnableDynamicProperty;
+import org.springframework.experimental.boot.test.context.OAuth2ClientProviderIssuerUri;
 
 @TestConfiguration(proxyBeanMethods = false)
 @EnableDynamicProperty
 class TestOauth2LoginMain {
 
 	@Bean
-	@DynamicProperty(name = "spring.security.oauth2.client.provider.spring.issuer-uri", value = "'http://127.0.0.1:' + port")
+	@OAuth2ClientProviderIssuerUri
 	static CommonsExecWebServer oauthServer() {
 		return CommonsExecWebServer.builder()
 			.classpath(cp -> cp
-					.files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+				.files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
 			)
 			.build();
 	}
