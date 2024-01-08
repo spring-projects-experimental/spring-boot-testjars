@@ -33,8 +33,8 @@ NOTE: We plan on adding the ability to https://github.com/spring-projects-experi
 [[dynamicproperty]]
 == @DynamicProperty
 
-This is an extension to Spring Boot's existing `DynamicPropertyRegistry`.
-It allows annotating a Spring Bean's definition and adding a property that references properties on that Bean.
+This is an extension to Spring Boot's existing https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testcontainers.at-development-time.dynamic-properties[`DynamicPropertyRegistry`].
+It allows annotating arbitrary Spring Bean definitions and adding a property that references properties on that Bean.
 
 
 For example, the following `@DynamicProperty` definition uses https://docs.spring.io/spring-framework/reference/core/expressions.html[SpEL] with the current Bean as the https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html[root object] for the value annotation to add a property named `messages.url` to the URL and port of the `CommonsExecWebServer`:
