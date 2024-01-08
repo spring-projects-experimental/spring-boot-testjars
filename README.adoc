@@ -1,0 +1,112 @@
+
+= spring-boot-testjars
+
+This project is intended to add support for running external Spring Boot applications during development and testing by building on Spring Boot's existing support. It is comprised of two main features:
+
+* Adding the ability to easily <<start-external,start an External Spring Boot application>>
+* <<dynamicproperty,Extending Spring Boot's support for `DynamicPropertyRegistry`>>
+
+NOTE: This project is an experimental project and may make breaking changes including, but not limited to, the name of the project.
+
+[[starting-external]]
+== Starting an External Spring Boot Application
+
+This project allows users to easily start an external Spring Boot application by creating it as a Bean.
+For example, the code below will start (on a arbitrary available port) and stop an external Spring Boot application as a part of the lifecycle of the Spring container:
+
+[source,java]
+----
+@Bean
+static CommonsExecWebServer oauthServer() {
+  return CommonsExecWebServer.builder()
+    .classpath(cp -> cp
+        .files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+    )
+    .build();
+}
+----
+
+The property `CommonsExecWebServer.getPort()` returns the port that the application starts on.
+
+NOTE: We plan on adding the ability to https://github.com/spring-projects-experimental/spring-boot-testjars/issues/10[resolve artifacts from maven coordinates] as well.
+
+[[dynamicproperty]]
+== @DynamicProperty
+
+This is an extension to Spring Boot's existing `DynamicPropertyRegistry`.
+It allows annotating a Spring Bean's definition and adding a property that references properties on that Bean.
+
+
+For example, the following `@DynamicProperty` definition uses https://docs.spring.io/spring-framework/reference/core/expressions.html[SpEL] with the current Bean as the https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html[root object] for the value annotation to add a property named `messages.url` to the URL and port of the `CommonsExecWebServer`:
+
+[source,java]
+----
+@Bean
+@DynamicProperty(name = "messages.url", value = "'http://localhost:' + port")
+static CommonsExecWebServer oauthServer() {
+  return CommonsExecWebServer.builder()
+    .classpath(cp -> cp
+        .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
+    )
+    .build();
+}
+----
+
+NOTE: While our `@DynamicProperty` examples use `CommonsExecWebServer`, the `@DynamicProperty` annotation works with any type of Bean.
+
+=== Composed `@DynamicProperty` Annotations
+
+`@DynamicProperty` is treated as a meta-annotation, so you can create composed annotations with it.
+For example, the following works the same as our example above:
+
+.MessageUrl.java
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@DynamicProperty(name = "message.url", value = "'http://localhost:' + port")
+public @interface MessageUrl {
+}
+----
+
+.Config.java
+[source,java]
+----
+@Bean
+@MessageUrl
+static CommonsExecWebServer oauthServer() {
+  return CommonsExecWebServer.builder()
+    .classpath(cp -> cp
+      .files("build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+    )
+    .build();
+}
+----
+
+=== Well Known Composed `@DynamicProperty` Annotations
+
+This is a list of well known composed `@DynamicProperty` annotations.
+
+==== @OAuth2ClientProviderIssuerUri
+
+This provides a mapping to issuer-uri of https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.oauth2.client.provider[the OAuth provider details].
+
+* name `spring.security.oauth2.client.provider.${providerName}.issuer-uri` with a default `providerName` of `spring`. The `providerName` can be overridden with the `OAuth2ClientProviderIssuerUri.providerName` property.
+* value `'http://127.0.0.1:' + port` which can be overriden with the `OAuth2ClientProviderIssuerUri.value` property
+
+== Samples
+
+To run the samples first assemble the authorization server sample:
+
+----
+$ ./gradlew :samples:authorization-server:assemble
+----
+
+Next run xref:samples/oauth2-login/src/test/java/example/oauth2/login/TestOauth2LoginMain.java[TestOauth2LoginMain].
+This starts the oauth2-login sample and the Authorization Server you assembled in the previous step.
+
+Visit http://localhost:8080/
+
+You will be redirected to the authorization server.
+Log in using the username `user` and password `password`.
+
+You are then redirected to the oauth2-login application.
