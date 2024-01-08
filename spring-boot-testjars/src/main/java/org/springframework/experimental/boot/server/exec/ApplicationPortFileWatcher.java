@@ -51,8 +51,6 @@ final class ApplicationPortFileWatcher {
 	 */
 	int getApplicationPort() {
 		Integer port;
-		// FIXME: remove print statement
-		System.out.println("Waiting on " + this.applicationPortFile);
 		// FIXME: Add a timeout
 		try (WatchService watch = FileSystems.getDefault().newWatchService()) {
 			this.applicationPortFile.getParentFile().toPath().register(watch, StandardWatchEventKinds.ENTRY_CREATE,

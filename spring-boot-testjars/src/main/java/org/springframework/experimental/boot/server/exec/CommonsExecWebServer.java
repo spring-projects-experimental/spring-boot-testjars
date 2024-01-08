@@ -84,7 +84,6 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 		catch (Exception ex) {
 			throw new RuntimeException("Failed to run the command", ex);
 		}
-		System.out.println("Done Execute");
 	}
 
 	public void stop() {
