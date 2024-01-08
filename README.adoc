@@ -37,7 +37,7 @@ This is an extension to Spring Boot's existing https://docs.spring.io/spring-boo
 It allows annotating arbitrary Spring Bean definitions and adding a property that references properties on that Bean.
 
 
-For example, the following `@DynamicProperty` definition uses https://docs.spring.io/spring-framework/reference/core/expressions.html[SpEL] with the current Bean as the https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html[root object] for the value annotation to add a property named `messages.url` to the URL and port of the `CommonsExecWebServer`:
+For example, the following `@DynamicProperty` definition uses https://docs.spring.io/spring-framework/reference/core/expressions.html[SpEL] with the current Bean as the https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html[root object] for the value annotation to add a property named `messages.url` to the URL and the arbitrary available port of the `CommonsExecWebServer`:
 
 [source,java]
 ----
