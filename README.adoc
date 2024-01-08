@@ -1,7 +1,7 @@
 
 = spring-boot-testjars
 
-This project is intended to add support for running external Spring Boot applications during development and testing by building on Spring Boot's existing support. It is comprised of two main features:
+This project is intended to add support for running external Spring Boot applications during development and testing by building on Spring Boot's existing support. It is composed of two main features:
 
 * Adding the ability to easily <<start-external,start an External Spring Boot application>>
 * <<dynamicproperty,Extending Spring Boot's support for `DynamicPropertyRegistry`>>
