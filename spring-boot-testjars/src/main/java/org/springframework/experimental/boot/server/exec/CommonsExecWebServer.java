@@ -20,14 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -49,14 +46,17 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 
 	private final File applicationPortFile;
 
-	private ExecuteWatchdog watchdog;
+	private final Runnable cleanup;
+
+	private ProcessDestroyerBean processDestroyerBean = new ProcessDestroyerBean();
 
 	// FIXME: Concurrency issues
 	private boolean start;
 
-	private CommonsExecWebServer(CommandLine commandLine, File applicationPortFile) {
+	CommonsExecWebServer(CommandLine commandLine, File applicationPortFile, Runnable cleanup) {
 		this.commandLine = commandLine;
 		this.applicationPortFile = applicationPortFile;
+		this.cleanup = cleanup;
 	}
 
 	@Override
@@ -74,9 +74,8 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 			return;
 		}
 		this.start = true;
-		this.watchdog = new ExecuteWatchdog(TimeUnit.MINUTES.toMillis(5));
 		DefaultExecutor executor = new DefaultExecutor();
-		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
+		executor.setProcessDestroyer(this.processDestroyerBean);
 		DefaultExecuteResultHandler result = new DefaultExecuteResultHandler();
 		try {
 			executor.execute(this.commandLine, null, result);
@@ -87,9 +86,9 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 	}
 
 	public void stop() {
-		if (this.watchdog != null) {
-			this.watchdog.destroyProcess();
-		}
+		this.processDestroyerBean.destroyAll();
+		this.cleanup.run();
+		FileSystemUtils.deleteRecursively(this.applicationPortFile);
 	}
 
 	public int getPort() {
@@ -150,7 +149,7 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 			commandLine.addArgument("-classpath", false);
 			commandLine.addArgument(this.classpath.build(), false);
 			commandLine.addArgument(this.mainClass);
-			return new CommonsExecWebServer(commandLine, this.applicationPortFile);
+			return new CommonsExecWebServer(commandLine, this.applicationPortFile, () -> this.classpath.cleanup());
 		}
 
 		private String[] createSystemPropertyArgs() {
@@ -159,11 +158,6 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 			systemPropertyArgs.put("server.port", "0");
 			return systemPropertyArgs.entrySet().stream().map((e) -> "-D" + e.getKey() + "=" + e.getValue() + "")
 					.toArray(String[]::new);
-		}
-
-		public void destroy() {
-			this.classpath.cleanup();
-			FileSystemUtils.deleteRecursively(this.applicationPortFile);
 		}
 
 		private static String currentJavaExecutable() {

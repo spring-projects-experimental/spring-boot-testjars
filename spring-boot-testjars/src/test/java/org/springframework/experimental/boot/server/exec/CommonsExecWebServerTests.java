@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class WebServerCommandLineTests {
+class CommonsExecWebServerTests {
 
 	@Test
 	void classpathContainsSpringFactories() throws Exception {
