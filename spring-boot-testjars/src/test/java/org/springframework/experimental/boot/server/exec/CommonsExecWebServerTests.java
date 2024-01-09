@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 
 class CommonsExecWebServerTests {
 
@@ -39,6 +40,14 @@ class CommonsExecWebServerTests {
 		URLClassLoader loader = new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }, null);
 		assertThat(loader.findResource("META-INF/spring.factories")).isNotNull();
 		server.destroy();
+	}
+
+	@Test
+	void getPortWhenServerFailsThenGetPortFails() throws Exception {
+		try (CommonsExecWebServer server = CommonsExecWebServer.builder().build()) {
+			server.start();
+			assertThatException().isThrownBy(() -> server.getPort());
+		}
 	}
 
 }

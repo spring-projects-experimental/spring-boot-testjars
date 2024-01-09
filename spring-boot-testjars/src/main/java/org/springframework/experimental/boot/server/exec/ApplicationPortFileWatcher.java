@@ -18,11 +18,13 @@ package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.function.Consumer;
 
 /**
  * Use {@link #getApplicationPort()} to block until {@link #applicationPortFile} is
@@ -35,12 +37,26 @@ final class ApplicationPortFileWatcher {
 
 	private final File applicationPortFile;
 
+	private final Consumer<WatchService> registerWatchService;
+
+	/**
+	 * Create a new instance.
+	 * @param applicationPortFile the file to read the application port from
+	 * @param registerWatchService a {@link Consumer} that allows registering the
+	 * {@link WatchService} used.
+	 */
+	ApplicationPortFileWatcher(File applicationPortFile, Consumer<WatchService> registerWatchService) {
+		this.applicationPortFile = applicationPortFile;
+		this.registerWatchService = registerWatchService;
+	}
+
 	/**
 	 * Create a new instance.
 	 * @param applicationPortFile the file to read the application port from
 	 */
 	ApplicationPortFileWatcher(File applicationPortFile) {
-		this.applicationPortFile = applicationPortFile;
+		this(applicationPortFile, (watchService) -> {
+		});
 	}
 
 	/**
@@ -49,10 +65,11 @@ final class ApplicationPortFileWatcher {
 	 * blocks until both conditions are true.
 	 * @return the port number from the {@link #applicationPortFile}
 	 */
-	int getApplicationPort() {
+	int getApplicationPort() throws InterruptedException {
 		Integer port;
 		// FIXME: Add a timeout
 		try (WatchService watch = FileSystems.getDefault().newWatchService()) {
+			this.registerWatchService.accept(watch);
 			this.applicationPortFile.getParentFile().toPath().register(watch, StandardWatchEventKinds.ENTRY_CREATE,
 					StandardWatchEventKinds.ENTRY_MODIFY);
 			// check after we are watching for events, but before take an event if the
@@ -63,8 +80,8 @@ final class ApplicationPortFileWatcher {
 				try {
 					watchKey = watch.take();
 				}
-				catch (InterruptedException ex) {
-					throw new RuntimeException(ex);
+				catch (ClosedWatchServiceException ex) {
+					throw (InterruptedException) new InterruptedException().initCause(ex);
 				}
 				port = readPort();
 				watchKey.reset();
