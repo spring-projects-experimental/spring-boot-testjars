@@ -17,10 +17,10 @@ For example, the code below will start (on a arbitrary available port) and stop 
 [source,java]
 ----
 @Bean
-static CommonsExecWebServer oauthServer() {
+static CommonsExecWebServer messagesApiServer() {
   return CommonsExecWebServer.builder()
     .classpath(cp -> cp
-        .files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
+        .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
     )
     .build();
 }
@@ -43,7 +43,7 @@ For example, the following `@DynamicProperty` definition uses https://docs.sprin
 ----
 @Bean
 @DynamicProperty(name = "messages.url", value = "'http://localhost:' + port")
-static CommonsExecWebServer oauthServer() {
+static CommonsExecWebServer messagesApiServer() {
   return CommonsExecWebServer.builder()
     .classpath(cp -> cp
         .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
