@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  build:
+    name: Build
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        jdk: [ 17 ]
+    with:
+      runs-on: ${{ matrix.os }}
+      java-version: ${{ matrix.jdk }}
+      distribution: temurin
+    secrets: inherit
+  deploy-artifacts:
+    name: Deploy Artifacts
+    needs: [ build ]
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
+    with:
+      should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
+    secrets: inherit
