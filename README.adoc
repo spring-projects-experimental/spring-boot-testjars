@@ -1,5 +1,6 @@
-
 = spring-boot-testjars
+
+https://docs.spring.io/spring-boot/docs/3.2.1/reference/html/features.html#features.testcontainers[Spring Boot + Testcontainers support] for Spring Boot applications, but without the need for a Docker container.
 
 This project is intended to add support for running external Spring Boot applications during development and testing by building on Spring Boot's existing support. It is composed of two main features:
 
@@ -7,6 +8,14 @@ This project is intended to add support for running external Spring Boot applica
 * <<dynamicproperty,Extending Spring Boot's support for `DynamicPropertyRegistry`>>
 
 NOTE: This project is an experimental project and may make breaking changes including, but not limited to, the name of the project.
+
+== Motivation
+
+Why not just create a Docker image of the Spring Boot application and use Testcontainers?
+
+* Lighter weight than spinning up a Docker image
+* When you are consuming dependencies, you don't always have a docker image available. Sure you can create one, but why add additional overhead?
+
 
 [[starting-external]]
 == Starting an External Spring Boot Application
