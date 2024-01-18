@@ -36,6 +36,16 @@ public class ClasspathBuilder {
 		return this;
 	}
 
+	/**
+	 * Recursively adds the package of the provided class.
+	 * @param clazz the class to add to the classpath
+	 * @return the {@link ClasspathBuilder} for additional modifications.
+	 */
+	public ClasspathBuilder recursive(Class<?> clazz) {
+		this.classpath.add(new RecursiveResourceClasspathEntry(clazz));
+		return this;
+	}
+
 	String build() {
 		return this.classpath.stream().flatMap((entry) -> entry.resolve().stream())
 				.collect(Collectors.joining(File.pathSeparator));

@@ -16,12 +16,12 @@
 
 package org.springframework.experimental.boot.server.exec;
 
+import java.io.File;
+import java.util.List;
+
 import example.authzserver.AuthServerMain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

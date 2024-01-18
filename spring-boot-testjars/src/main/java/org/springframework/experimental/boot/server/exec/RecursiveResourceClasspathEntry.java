@@ -16,8 +16,6 @@
 
 package org.springframework.experimental.boot.server.exec;
 
-import org.springframework.util.FileSystemUtils;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,18 +26,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.springframework.util.FileSystemUtils;
+
 /**
  * Adds resources recursively based upon the provided class.
  *
  * @author Rob Winch
  */
-public class RecursiveResourceClasspathEntry implements ClasspathEntry {
+class RecursiveResourceClasspathEntry implements ClasspathEntry {
 
 	private final Class<?> clazz;
 
 	private Path classpath;
 
-	public RecursiveResourceClasspathEntry(Class<?> clazz) {
+	RecursiveResourceClasspathEntry(Class<?> clazz) {
 		this.clazz = clazz;
 	}
 
@@ -68,8 +68,8 @@ public class RecursiveResourceClasspathEntry implements ClasspathEntry {
 			Files.copy(resourceParent, destination);
 			return this.classpath;
 		}
-		catch (URISyntaxException | IOException e) {
-			throw new RuntimeException(e);
+		catch (URISyntaxException | IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
