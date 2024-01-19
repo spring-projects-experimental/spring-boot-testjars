@@ -65,7 +65,7 @@ class RecursiveResourceClasspathEntry implements ClasspathEntry {
 			Path resourceParent = Paths.get(resource.toURI()).getParent();
 			Path destination = this.classpath.resolve(resourcePath);
 			destination.getParent().toFile().mkdirs();
-			Files.copy(resourceParent, destination);
+			FileSystemUtils.copyRecursively(resourceParent, destination);
 			return this.classpath;
 		}
 		catch (URISyntaxException | IOException ex) {

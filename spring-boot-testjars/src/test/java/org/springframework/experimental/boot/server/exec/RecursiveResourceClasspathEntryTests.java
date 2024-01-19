@@ -43,6 +43,7 @@ class RecursiveResourceClasspathEntryTests {
 		assertThat(classpath).hasSize(1);
 		File authServerMain = new File(classpath.get(0));
 		assertThat(authServerMain).exists();
+		assertThat(new File(authServerMain, "example/authzserver/AuthServerMain.class")).exists();
 	}
 
 	@Test
