@@ -50,4 +50,13 @@ class CommonsExecWebServerTests {
 		}
 	}
 
+	@Test
+	void getPortWhenServerFailsBeforeThenGetPortFails() throws Exception {
+		try (CommonsExecWebServer server = CommonsExecWebServer.builder().build()) {
+			server.start();
+			server.waitForServer();
+			assertThatException().isThrownBy(() -> server.getPort());
+		}
+	}
+
 }

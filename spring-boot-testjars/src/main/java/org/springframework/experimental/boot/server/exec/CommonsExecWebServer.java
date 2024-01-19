@@ -88,6 +88,17 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 		}
 	}
 
+	void waitForServer() {
+		synchronized (this.handler.lock) {
+			try {
+				this.handler.lock.wait();
+			}
+			catch (InterruptedException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+	}
+
 	public void stop() {
 		this.processDestroyerBean.destroyAll();
 		this.cleanup.run();
@@ -186,19 +197,32 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 
 		private ExecuteException failure;
 
-		void watchService(WatchService watchService) {
+		private Object lock = new Object();
+
+		synchronized void watchService(WatchService watchService) {
+			if (this.failure != null) {
+				throw new IllegalStateException("The server failed to start ", this.failure);
+			}
 			this.watchService = watchService;
 		}
 
 		@Override
-		public void onProcessComplete(int exitValue) {
+		public synchronized void onProcessComplete(int exitValue) {
+			completed();
 			closeWatchService();
 		}
 
 		@Override
-		public void onProcessFailed(ExecuteException ex) {
+		public synchronized void onProcessFailed(ExecuteException ex) {
+			completed();
 			this.failure = ex;
 			closeWatchService();
+		}
+
+		private void completed() {
+			synchronized (this.lock) {
+				this.lock.notifyAll();
+			}
 		}
 
 		private void closeWatchService() {
