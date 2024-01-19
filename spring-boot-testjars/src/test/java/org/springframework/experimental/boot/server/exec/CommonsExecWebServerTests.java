@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class CommonsExecWebServerTests {
 
@@ -57,6 +58,20 @@ class CommonsExecWebServerTests {
 			server.waitForServer();
 			assertThatException().isThrownBy(() -> server.getPort());
 		}
+	}
+
+	@Test
+	void mainClass() {
+		String mainClass = "example.Main";
+		CommonsExecWebServer webServer = CommonsExecWebServer.builder().mainClass(mainClass).build();
+		String[] args = webServer.getCommandLine().getArguments();
+		assertThat(args[args.length - 1]).isEqualTo(mainClass);
+	}
+
+	@Test
+	void mainClassWhenNull() {
+		String mainClass = null;
+		assertThatIllegalArgumentException().isThrownBy(() -> CommonsExecWebServer.builder().mainClass(mainClass));
 	}
 
 }

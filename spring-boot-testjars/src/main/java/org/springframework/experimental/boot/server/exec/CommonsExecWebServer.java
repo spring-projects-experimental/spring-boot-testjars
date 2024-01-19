@@ -31,6 +31,7 @@ import org.apache.commons.exec.ExecuteResultHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.server.WebServer;
+import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -155,6 +156,12 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 			catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
+		}
+
+		public CommonsExecWebServerBuilder mainClass(String mainClass) {
+			Assert.notNull(mainClass, "mainClass cannot be null");
+			this.mainClass = mainClass;
+			return this;
 		}
 
 		public CommonsExecWebServerBuilder classpath(Consumer<ClasspathBuilder> configure) {
