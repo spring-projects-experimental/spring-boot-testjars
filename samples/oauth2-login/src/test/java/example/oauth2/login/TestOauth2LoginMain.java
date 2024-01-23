@@ -24,17 +24,22 @@ import org.springframework.experimental.boot.server.exec.CommonsExecWebServerFac
 import org.springframework.experimental.boot.test.context.EnableDynamicProperty;
 import org.springframework.experimental.boot.test.context.OAuth2ClientProviderIssuerUri;
 
+import static org.springframework.experimental.boot.server.exec.MavenClasspathEntry.springBootStarter;
+
 @TestConfiguration(proxyBeanMethods = false)
 @EnableDynamicProperty
 class TestOauth2LoginMain {
 
 	@Bean
 	@OAuth2ClientProviderIssuerUri
-	static CommonsExecWebServerFactoryBean oauthServer() {
+	static CommonsExecWebServerFactoryBean authorizationServer() {
+		// @formatter:off
 		return CommonsExecWebServerFactoryBean.builder()
-			.classpath(cp -> cp
-				.files("samples/authorization-server/build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
-			);
+				.defaultSpringBootApplicationMain()
+				.classpath((classpath) -> classpath
+						.entries(springBootStarter("oauth2-authorization-server"))
+				);
+		// @formatter:on
 	}
 
 	public static void main(String[] args) throws Exception {

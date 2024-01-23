@@ -28,7 +28,7 @@ For example, the code below will start (on a arbitrary available port) and stop 
 @Bean
 static CommonsExecWebServerFactoryBean messagesApiServer() {
   return CommonsExecWebServerFactoryBean.builder()
-    .classpath(cp -> cp
+    .classpath((cp) -> cp
         .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
     );
 }
@@ -36,7 +36,51 @@ static CommonsExecWebServerFactoryBean messagesApiServer() {
 
 The `CommonsExecWebServerFactoryBean` creates a `CommonsExecWebServer` and the property `CommonsExecWebServer.getPort()` returns the port that the application starts on.
 
-NOTE: We plan on adding the ability to https://github.com/spring-projects-experimental/spring-boot-testjars/issues/10[resolve artifacts from maven coordinates] as well.
+=== MavenClasspathEntry
+
+User's can also resolve Maven dependencies from Maven Central.
+The following will add spring-boot-starter-authorization-server and it's transitive dependencies to the classpath.
+
+[source,java]
+----
+@Bean
+@OAuth2ClientProviderIssuerUri
+static CommonsExecWebServerFactoryBean authorizationServer() {
+	// @formatter:off
+	return CommonsExecWebServerFactoryBean.builder()
+		// ...
+		.classpath((classpath) -> classpath
+			// Add spring-boot-starter-authorization-server & transitive dependencies
+			.entries(springBootStarter("oauth2-authorization-server"))
+		);
+	// @formatter:on
+}
+----
+
+You can also use the `MavenClasspathEntry` constructor directly or additional helper methods to add dependencies other than Spring Boot starters to the classpath.
+
+=== Default Java Main
+
+In some cases you need to provide a Java main class without any additional configuration.
+If that is the case, you can do it with the following:
+
+[source,java]
+----
+@Bean
+@OAuth2ClientProviderIssuerUri
+static CommonsExecWebServerFactoryBean authorizationServer() {
+	// @formatter:off
+	return CommonsExecWebServerFactoryBean.builder()
+		// ...
+		// Add a class annotated with SpringBootApplication and a main method to the classpath and use it as the main class
+		.defaultSpringBootApplicationMain();
+	// @formatter:on
+}
+----
+
+=== Default application.yml / application.properties
+
+If present, `CommonsExecWebServerFactoryBean` will add the resources `webjars/$beanName/application.yml` or `webjars/$beanName/application.properties` exists, then it is automatically added to the classpath as `application.yml` and `application.properties` respectively.
 
 [[dynamicproperty]]
 == @DynamicProperty
@@ -100,15 +144,8 @@ This provides a mapping to issuer-uri of https://docs.spring.io/spring-boot/docs
 * value `'http://127.0.0.1:' + port` which can be overriden with the `OAuth2ClientProviderIssuerUri.value` property
 
 == Samples
-
-To run the samples first assemble the authorization server sample:
-
-----
-$ ./gradlew :samples:authorization-server:assemble
-----
-
-Next run xref:samples/oauth2-login/src/test/java/example/oauth2/login/TestOauth2LoginMain.java[TestOauth2LoginMain].
-This starts the oauth2-login sample and the Authorization Server you assembled in the previous step.
+Run xref:samples/oauth2-login/src/test/java/example/oauth2/login/TestOauth2LoginMain.java[TestOauth2LoginMain].
+This starts the oauth2-login sample and a Spring Authorization Server you assembled in the previous step.
 
 Visit http://localhost:8080/
 
