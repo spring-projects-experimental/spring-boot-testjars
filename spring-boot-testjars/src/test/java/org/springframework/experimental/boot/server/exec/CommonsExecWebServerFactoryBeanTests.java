@@ -28,11 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-class CommonsExecWebServerTests {
+class CommonsExecWebServerFactoryBeanTests {
 
 	@Test
 	void classpathContainsSpringFactories() throws Exception {
-		CommonsExecWebServer server = CommonsExecWebServer.builder().build();
+		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder().getObject();
 		List<String> args = Arrays.asList(server.getCommandLine().getArguments());
 		int index = args.indexOf("-classpath");
 		assertThat(index).isGreaterThanOrEqualTo(0);
@@ -45,7 +45,7 @@ class CommonsExecWebServerTests {
 
 	@Test
 	void getPortWhenServerFailsThenGetPortFails() throws Exception {
-		try (CommonsExecWebServer server = CommonsExecWebServer.builder().build()) {
+		try (CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder().getObject()) {
 			server.start();
 			assertThatException().isThrownBy(() -> server.getPort());
 		}
@@ -53,7 +53,7 @@ class CommonsExecWebServerTests {
 
 	@Test
 	void getPortWhenServerFailsBeforeThenGetPortFails() throws Exception {
-		try (CommonsExecWebServer server = CommonsExecWebServer.builder().build()) {
+		try (CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder().getObject()) {
 			server.start();
 			server.waitForServer();
 			assertThatException().isThrownBy(() -> server.getPort());
@@ -61,9 +61,9 @@ class CommonsExecWebServerTests {
 	}
 
 	@Test
-	void mainClass() {
+	void mainClass() throws Exception {
 		String mainClass = "example.Main";
-		CommonsExecWebServer webServer = CommonsExecWebServer.builder().mainClass(mainClass).build();
+		CommonsExecWebServer webServer = CommonsExecWebServerFactoryBean.builder().mainClass(mainClass).getObject();
 		String[] args = webServer.getCommandLine().getArguments();
 		assertThat(args[args.length - 1]).isEqualTo(mainClass);
 	}
@@ -71,7 +71,8 @@ class CommonsExecWebServerTests {
 	@Test
 	void mainClassWhenNull() {
 		String mainClass = null;
-		assertThatIllegalArgumentException().isThrownBy(() -> CommonsExecWebServer.builder().mainClass(mainClass));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> CommonsExecWebServerFactoryBean.builder().mainClass(mainClass));
 	}
 
 }

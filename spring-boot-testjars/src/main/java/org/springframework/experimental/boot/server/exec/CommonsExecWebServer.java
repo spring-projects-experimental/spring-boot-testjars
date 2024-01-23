@@ -19,9 +19,6 @@ package org.springframework.experimental.boot.server.exec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.WatchService;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -31,7 +28,6 @@ import org.apache.commons.exec.ExecuteResultHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.server.WebServer;
-import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -121,81 +117,9 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 		return this.commandLine;
 	}
 
-	public static CommonsExecWebServerBuilder builder() {
-		return new CommonsExecWebServerBuilder();
-	}
-
 	@Override
 	public void close() throws Exception {
 		stop();
-	}
-
-	public static final class CommonsExecWebServerBuilder {
-
-		private String executable = currentJavaExecutable();
-
-		private ClasspathBuilder classpath = new ClasspathBuilder();
-
-		private Map<String, String> systemProperties = new HashMap<>();
-
-		private String mainClass = "org.springframework.boot.loader.JarLauncher";
-
-		private File applicationPortFile = createApplicationPortFile();
-
-		private CommonsExecWebServerBuilder() {
-			this.classpath.entries(new ResourceClasspathEntry(
-					"org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories",
-					"META-INF/spring.factories"));
-		}
-
-		private static File createApplicationPortFile() {
-			try {
-				// FIXME: Review if we have a temp file CVE here
-				return File.createTempFile("application-", ".port");
-			}
-			catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-		public CommonsExecWebServerBuilder mainClass(String mainClass) {
-			Assert.notNull(mainClass, "mainClass cannot be null");
-			this.mainClass = mainClass;
-			return this;
-		}
-
-		public CommonsExecWebServerBuilder classpath(Consumer<ClasspathBuilder> configure) {
-			configure.accept(this.classpath);
-			return this;
-		}
-
-		public CommonsExecWebServerBuilder addSystemProperties(Map<String, String> systemProperties) {
-			this.systemProperties.putAll(systemProperties);
-			return this;
-		}
-
-		public CommonsExecWebServer build() {
-			CommandLine commandLine = new CommandLine(this.executable);
-			commandLine.addArguments(createSystemPropertyArgs(), false);
-			commandLine.addArgument("-classpath", false);
-			commandLine.addArgument(this.classpath.build(), false);
-			commandLine.addArgument(this.mainClass);
-			return new CommonsExecWebServer(commandLine, this.applicationPortFile, () -> this.classpath.cleanup());
-		}
-
-		private String[] createSystemPropertyArgs() {
-			Map<String, String> systemPropertyArgs = new HashMap<>(this.systemProperties);
-			systemPropertyArgs.put("PORTFILE", this.applicationPortFile.getAbsolutePath());
-			systemPropertyArgs.put("server.port", "0");
-			return systemPropertyArgs.entrySet().stream().map((e) -> "-D" + e.getKey() + "=" + e.getValue() + "")
-					.toArray(String[]::new);
-		}
-
-		private static String currentJavaExecutable() {
-			ProcessHandle processHandle = ProcessHandle.current();
-			return processHandle.info().command().get();
-		}
-
 	}
 
 	private static class WatchServiceExecuteResultHandler implements ExecuteResultHandler {

@@ -39,12 +39,16 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 		this.classpathResourceName = classpathResourceName;
 	}
 
+	boolean exists() {
+		return getExistingResourceAsStream() != null;
+	}
+
 	@Override
 	public List<String> resolve() {
 		if (this.classpath == null) {
 			try {
 				this.classpath = Files.createTempDirectory("classpath-");
-				InputStream resource = getClass().getClassLoader().getResourceAsStream(this.existingResourceName);
+				InputStream resource = getExistingResourceAsStream();
 				try {
 					Path destination = this.classpath.resolve(this.classpathResourceName);
 					destination.toFile().getParentFile().mkdirs();
@@ -60,6 +64,10 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 			}
 		}
 		return Arrays.asList(this.classpath.toFile().getAbsolutePath());
+	}
+
+	private InputStream getExistingResourceAsStream() {
+		return getClass().getClassLoader().getResourceAsStream(this.existingResourceName);
 	}
 
 	public void cleanup() {

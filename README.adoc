@@ -26,16 +26,15 @@ For example, the code below will start (on a arbitrary available port) and stop 
 [source,java]
 ----
 @Bean
-static CommonsExecWebServer messagesApiServer() {
-  return CommonsExecWebServer.builder()
+static CommonsExecWebServerFactoryBean messagesApiServer() {
+  return CommonsExecWebServerFactoryBean.builder()
     .classpath(cp -> cp
         .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
-    )
-    .build();
+    );
 }
 ----
 
-The property `CommonsExecWebServer.getPort()` returns the port that the application starts on.
+The `CommonsExecWebServerFactoryBean` creates a `CommonsExecWebServer` and the property `CommonsExecWebServer.getPort()` returns the port that the application starts on.
 
 NOTE: We plan on adding the ability to https://github.com/spring-projects-experimental/spring-boot-testjars/issues/10[resolve artifacts from maven coordinates] as well.
 
@@ -52,12 +51,11 @@ For example, the following `@DynamicProperty` definition uses https://docs.sprin
 ----
 @Bean
 @DynamicProperty(name = "messages.url", value = "'http://localhost:' + port")
-static CommonsExecWebServer messagesApiServer() {
-  return CommonsExecWebServer.builder()
+static CommonsExecWebServerFactoryBean messagesApiServer() {
+  return CommonsExecWebServerFactoryBean.builder()
     .classpath(cp -> cp
         .files("build/libs/messages-0.0.1-SNAPSHOT.jar")
-    )
-    .build();
+    );
 }
 ----
 
@@ -82,12 +80,11 @@ public @interface MessageUrl {
 ----
 @Bean
 @MessageUrl
-static CommonsExecWebServer oauthServer() {
-  return CommonsExecWebServer.builder()
+static CommonsExecWebServerFactoryBean oauthServer() {
+  return CommonsExecWebServerFactoryBean.builder()
     .classpath(cp -> cp
       .files("build/libs/authorization-server-0.0.1-SNAPSHOT.jar")
-    )
-    .build();
+    );
 }
 ----
 
