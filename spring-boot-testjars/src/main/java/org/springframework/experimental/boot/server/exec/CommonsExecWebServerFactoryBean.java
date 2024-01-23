@@ -28,6 +28,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * Creates a {@link CommonsExecWebServer}. If the resource
@@ -39,6 +40,8 @@ import org.springframework.util.Assert;
  */
 public class CommonsExecWebServerFactoryBean
 		implements FactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
+
+	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = "org.springframework.experimental.boot.server.exec.main.SpringBootApplicationMain";
 
 	private String executable = currentJavaExecutable();
 
@@ -70,6 +73,12 @@ public class CommonsExecWebServerFactoryBean
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	public CommonsExecWebServerFactoryBean defaultSpringBootApplicationMain() {
+		mainClass(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME);
+		Class<?> mainClass = ClassUtils.resolveClassName(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME, null);
+		return classpath((classpath) -> classpath.recursive(mainClass));
 	}
 
 	public CommonsExecWebServerFactoryBean mainClass(String mainClass) {

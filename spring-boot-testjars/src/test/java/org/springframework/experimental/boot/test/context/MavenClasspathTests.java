@@ -16,7 +16,6 @@
 
 package org.springframework.experimental.boot.test.context;
 
-import example.authzserver.AuthServerMain;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -53,10 +52,9 @@ class MavenClasspathTests {
 		static CommonsExecWebServerFactoryBean authorizationServer() {
 			// @formatter:off
 			return CommonsExecWebServerFactoryBean.builder()
-					.mainClass(AuthServerMain.class.getName())
+					.defaultSpringBootApplicationMain()
 					.classpath((classpath) -> classpath
 						.entries(springBootStarter("oauth2-authorization-server"))
-						.recursive(AuthServerMain.class)
 					);
 			// @formatter:on
 		}
