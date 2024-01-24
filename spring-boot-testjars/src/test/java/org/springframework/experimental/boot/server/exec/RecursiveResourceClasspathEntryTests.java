@@ -23,6 +23,8 @@ import example.authzserver.AuthServerMain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.boot.info.OsInfo;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RecursiveResourceClasspathEntryTests {
@@ -44,6 +46,19 @@ class RecursiveResourceClasspathEntryTests {
 		File authServerMain = new File(classpath.get(0));
 		assertThat(authServerMain).exists();
 		assertThat(new File(authServerMain, "example/authzserver/AuthServerMain.class")).exists();
+	}
+
+	@Test
+	void resolveWhenJar() {
+		this.classpathEntry = new RecursiveResourceClasspathEntry(OsInfo.class);
+		List<String> classpath = this.classpathEntry.resolve();
+		assertThat(classpath).hasSize(1);
+		File authServerMain = new File(classpath.get(0));
+		assertThat(authServerMain).exists();
+		assertThat(new File(authServerMain,
+				"org/springframework/boot/info/BuildProperties$BuildPropertiesRuntimeHints.class")).exists();
+		assertThat(new File(authServerMain, "org/springframework/boot/info/OsInfo.class")).exists();
+		assertThat(new File(authServerMain, "org/springframework/boot/info/JavaInfo.class")).exists();
 	}
 
 	@Test

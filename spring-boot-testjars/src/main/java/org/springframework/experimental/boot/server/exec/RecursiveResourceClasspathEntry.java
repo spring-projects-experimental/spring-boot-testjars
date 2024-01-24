@@ -17,15 +17,16 @@
 package org.springframework.experimental.boot.server.exec;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -56,21 +57,35 @@ class RecursiveResourceClasspathEntry implements ClasspathEntry {
 	}
 
 	private Path createClasspath() {
-		ClassLoader classLoader = this.clazz.getClassLoader();
 		String resourcePath = toResourceName(this.clazz.getPackageName());
-		String resourceName = toResourceName(this.clazz.getName()) + ".class";
-		URL resource = classLoader.getResource(resourceName);
+		String resourcePattern = resourcePath + "/**";
+		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 		try {
-			this.classpath = Files.createTempDirectory("classpath-");
-			Path resourceParent = Paths.get(resource.toURI()).getParent();
-			Path destination = this.classpath.resolve(resourcePath);
-			destination.getParent().toFile().mkdirs();
-			FileSystemUtils.copyRecursively(resourceParent, destination);
-			return this.classpath;
+			Path classpath = Files.createTempDirectory("classpath-");
+			Resource[] resources = resolver.getResources(resourcePattern);
+			for (Resource resource : resources) {
+				String path = getPath(resource);
+				if (!path.endsWith("/")) {
+					Path destination = classpath.resolve(resourcePath).resolve(resource.getFilename());
+					destination.getParent().toFile().mkdirs();
+					Files.copy(resource.getInputStream(), destination);
+				}
+			}
+			return classpath;
 		}
-		catch (URISyntaxException | IOException ex) {
+		catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	private String getPath(Resource resource) {
+		if (resource instanceof ClassPathResource classPathResource) {
+			return classPathResource.getPath();
+		}
+		if (resource instanceof FileSystemResource fileSystem) {
+			return fileSystem.getPath();
+		}
+		throw new IllegalArgumentException("Resource is not a supported type. " + resource + " " + resource.getClass());
 	}
 
 	@Override
