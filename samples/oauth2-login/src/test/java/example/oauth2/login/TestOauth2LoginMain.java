@@ -37,7 +37,7 @@ class TestOauth2LoginMain {
 		return CommonsExecWebServerFactoryBean.builder()
 				.defaultSpringBootApplicationMain()
 				.classpath((classpath) -> classpath
-						.entries(springBootStarter("oauth2-authorization-server"))
+					.entries(springBootStarter("oauth2-authorization-server"))
 				);
 		// @formatter:on
 	}
