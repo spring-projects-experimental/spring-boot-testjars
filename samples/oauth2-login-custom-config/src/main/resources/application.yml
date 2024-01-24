@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          spring:
+            scope: openid,profile
+            client-id: spring
+            client-secret: secret
+#        provider:
+#          spring:
+#            issuer-uri: http://localhost:9000

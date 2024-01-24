@@ -12,4 +12,4 @@ rootProject.name = 'spring-boot-testjars-build'
 
 include ':spring-boot-testjars'
 include ':samples:oauth2-login'
-include ':samples:authorization-server'
+include ':samples:oauth2-login-custom-config'
