@@ -1,4 +1,5 @@
 = spring-boot-testjars
+:TESTJARS_VERSION: 0.0.1-SNAPSHOT
 
 https://docs.spring.io/spring-boot/docs/3.2.1/reference/html/features.html#features.testcontainers[Spring Boot + Testcontainers support] for Spring Boot applications, but without the need for a Docker container.
 
@@ -15,6 +16,29 @@ Why not just create a Docker image of the Spring Boot application and use Testco
 
 * Lighter weight than spinning up a Docker image
 * When you are consuming dependencies, you don't always have a docker image available. Sure you can create one, but why add additional overhead?
+
+== Maven / Gradle
+
+You can add Spring Boot Testjars to your project by adding them to your Gradle or Maven build.
+
+.build.gradle
+[source,groovy,subs=attributes+]
+----
+testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:{TESTJARS_VERSION}')
+----
+
+.pom.xml
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>org.springframework.experimental.boot</groupId>
+    <artifactId>spring-boot-testjars</artifactId>
+    <scope>{TESTJARS_VERSION}</scope>
+</dependency>
+----
+
+Releases are published to Maven Central.
+For any other release type, refer to the https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-Artifacts#spring-repositories[Spring Repositories].
 
 
 [[starting-external]]
@@ -62,9 +86,9 @@ You can also use the `MavenClasspathEntry` constructor directly or additional he
 To use this feature, use the https://docs.gradle.org/current/userguide/feature_variants.html[feature variant] named `maven` by adding it to your Gradle or Maven build.
 
 .build.gradle
-[source,groovy]
+[source,groovy,subs=attributes+]
 ----
-testImplementation ('org.springframework.experimental.boot:spring-boot-testjars') {
+testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:{TESTJARS_VERSION}') {
         capabilities {
             requireCapability("org.springframework.experimental.boot:spring-boot-testjars-maven")
         }
@@ -72,12 +96,13 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars'
 ----
 
 .pom.xml
-[source,xml]
+[source,xml,subs=attributes+]
 ----
 <dependency>
     <groupId>org.springframework.experimental.boot</groupId>
     <artifactId>spring-boot-testjars</artifactId>
     <classifier>maven</classifier>
+    <scope>{TESTJARS_VERSION}</scope>
 </dependency>
 ----
 
