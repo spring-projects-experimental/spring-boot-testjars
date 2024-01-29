@@ -75,7 +75,7 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars'
 [source,xml]
 ----
 <dependency>
-    <groupId>org.springframework.boot.experimental</groupId>
+    <groupId>org.springframework.experimental.boot</groupId>
     <artifactId>spring-boot-testjars</artifactId>
     <classifier>maven</classifier>
 </dependency>
