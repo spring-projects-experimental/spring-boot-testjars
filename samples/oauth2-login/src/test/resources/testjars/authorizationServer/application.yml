@@ -16,9 +16,6 @@ spring:
                 - "refresh_token"
               redirect-uris:
                 - "http://localhost:8080/login/oauth2/code/spring"
-              post-logout-redirect-uris:
-                - "http://localhost:8080/"
               scopes:
                 - "openid"
                 - "profile"
-            require-authorization-consent: true
