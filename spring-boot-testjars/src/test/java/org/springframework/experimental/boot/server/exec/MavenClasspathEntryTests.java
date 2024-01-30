@@ -16,18 +16,33 @@
 
 package org.springframework.experimental.boot.server.exec;
 
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.SpringBootVersion;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class MavenClasspathEntryTests {
 
 	@Test
-	void go() {
-		MavenClasspathEntry classpath = new MavenClasspathEntry(
-				"org.springframework.boot:spring-boot-starter-oauth2-authorization-server:"
-						+ SpringBootVersion.getVersion());
-		classpath.resolve();
+	void springBootStarter() {
+		MavenClasspathEntry classpath = MavenClasspathEntry.springBootStarter("web");
+		List<String> entries = classpath.resolve();
+		assertThat(entries).hasSizeGreaterThan(5);
+		String mavenLocal = new File(System.getProperty("user.home"), ".m2/repository").getAbsolutePath();
+		entries.forEach((entry) -> assertThat(entry).startsWith(mavenLocal));
+		String starterWebPathPartial = "/org/springframework/boot/spring-boot-starter-web/"
+				+ SpringBootVersion.getVersion() + "/spring-boot-starter-web-" + SpringBootVersion.getVersion()
+				+ ".jar";
+		Optional<String> starterWebEntry = entries.stream().filter((entry) -> entry.contains(starterWebPathPartial))
+				.findFirst();
+		assertThat(starterWebEntry.isPresent())
+				.withFailMessage("Unable to find spring-boot-starter with path that contains " + starterWebPathPartial)
+				.isTrue();
 	}
 
 }
