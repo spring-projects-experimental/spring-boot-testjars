@@ -26,6 +26,11 @@ nexusPublishing {
     }
 }
 
+tasks.register('finalizeDeployArtifacts') {
+    group = 'Publishing'
+    description = 'Automatically close and release staging repositories when required based on the version'
+}
+
 if (!project.version.contains('-')) {
     project.tasks.finalizeDeployArtifacts.dependsOn 'closeAndReleaseOssrhStagingRepository'
 }
