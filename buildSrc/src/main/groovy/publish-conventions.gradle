@@ -35,5 +35,4 @@ publishing {
 
 if (!project.version.contains('-')) {
     project.tasks.publishArtifacts.dependsOn 'publishToOssrh'
-    project.tasks.finalizeDeployArtifacts.dependsOn 'closeAndReleaseOssrhStagingRepository'
 }

@@ -25,3 +25,7 @@ nexusPublishing {
         }
     }
 }
+
+if (!project.version.contains('-')) {
+    project.tasks.finalizeDeployArtifacts.dependsOn 'closeAndReleaseOssrhStagingRepository'
+}
