@@ -1,0 +1,33 @@
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = "Spring Boot Testjars"
+                description = "Spring Boot Testjars is like Spring Testcontainers support but without the need for Docker images"
+                url = "https://github.com/spring-projects-experimental/spring-boot-testjars"
+                inceptionYear = '2023'
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "rwinch"
+                        name = "Rob Winch"
+                    }
+                }
+                scm {
+                    connection = "https://github.com/spring-projects-experimental/spring-boot-testjars.git"
+                    developerConnection = "scm:git@github.com:spring-projects-experimental/spring-boot-testjars.git"
+                    url = "https://github.com/spring-projects-experimental/spring-boot-testjars"
+                }
+            }
+        }
+    }
+}
+
+if (!project.version.contains('-')) {
+    project.tasks.publishArtifacts.dependsOn 'publishToOssrh'
+}

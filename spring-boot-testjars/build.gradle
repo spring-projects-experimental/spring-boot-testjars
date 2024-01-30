@@ -3,6 +3,7 @@ plugins {
 	id'checkstyle'
 	id'io.spring.javaformat' version'0.0.27'
 	id "io.spring.security.maven" version "1.0.1"
+	id 'publish-conventions'
 }
 
 group = 'org.springframework.experimental.boot'
