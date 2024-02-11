@@ -33,7 +33,7 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:
 <dependency>
     <groupId>org.springframework.experimental.boot</groupId>
     <artifactId>spring-boot-testjars</artifactId>
-    <scope>{TESTJARS_VERSION}</scope>
+    <version>{TESTJARS_VERSION}</version>
 </dependency>
 ----
 
@@ -102,7 +102,7 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:
     <groupId>org.springframework.experimental.boot</groupId>
     <artifactId>spring-boot-testjars</artifactId>
     <classifier>maven</classifier>
-    <scope>{TESTJARS_VERSION}</scope>
+    <version>{TESTJARS_VERSION}</version>
 </dependency>
 ----
 
