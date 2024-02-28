@@ -10,6 +10,10 @@ This project is intended to add support for running external Spring Boot applica
 
 NOTE: This project is an experimental project and may make breaking changes including, but not limited to, the name of the project.
 
+== Videos
+
+* https://spring.io/blog/2024/02/08/spring-tips-spring-boot-testjars[Spring Tips]
+
 == Motivation
 
 Why not just create a Docker image of the Spring Boot application and use Testcontainers?
