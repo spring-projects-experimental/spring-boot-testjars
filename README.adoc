@@ -110,6 +110,19 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:
 </dependency>
 ----
 
+==== Custom Maven Repositories
+
+By default, only Maven Central is searched.
+You can customize the repositories that are searched by injecting the repositories like the example below:
+
+[source,java]
+----
+List<RemoteRepository> repositories = new ArrayList<>();
+repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
+repositories.add(new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/").build());
+MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.1.0-RC1", repositories);
+----
+
 === Default Java Main
 
 In some cases you need to provide a Java main class without any additional configuration.

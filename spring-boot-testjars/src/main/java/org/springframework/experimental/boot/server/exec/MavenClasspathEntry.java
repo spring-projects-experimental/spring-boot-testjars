@@ -59,6 +59,8 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private final List<RemoteRepository> repositories;
+
 	/**
 	 * The maven coordinates (e.g. "org.springframework:spring-core:6.1.0")
 	 */
@@ -71,7 +73,27 @@ public class MavenClasspathEntry implements ClasspathEntry {
 	 * SpringBootVersion.getVersion()).
 	 */
 	public MavenClasspathEntry(String coords) {
+		this(coords, newRepositories());
+	}
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * <code>
+	 *     List$lt;RemoteRepository&gt; repositories = new ArrayList&lt;&gt;();
+	 *     repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
+	 *     repositories.add(new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/").build());
+	 *     MavenClasspathEntry entry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-RC1", repositories);
+	 * </code>
+	 * @param coords the maven coordinates (e.g. *
+	 * "org.springframework.boot:spring-boot-starter-web:" + *
+	 * SpringBootVersion.getVersion()).
+	 * @param repositories a {@link List} of the {@link RemoteRepository} instances to
+	 * use.
+	 */
+	public MavenClasspathEntry(String coords, List<RemoteRepository> repositories) {
 		this.coords = coords;
+		this.repositories = repositories;
 	}
 
 	/**
@@ -105,7 +127,7 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 		CollectRequest collectRequest = new CollectRequest();
 		collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
-		collectRequest.setRepositories(newRepositories(system, session));
+		collectRequest.setRepositories(this.repositories);
 
 		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
 
@@ -166,7 +188,7 @@ public class MavenClasspathEntry implements ClasspathEntry {
 		return session;
 	}
 
-	private static List<RemoteRepository> newRepositories(RepositorySystem system, RepositorySystemSession session) {
+	private static List<RemoteRepository> newRepositories() {
 		return new ArrayList<>(Collections.singletonList(newCentralRepository()));
 	}
 

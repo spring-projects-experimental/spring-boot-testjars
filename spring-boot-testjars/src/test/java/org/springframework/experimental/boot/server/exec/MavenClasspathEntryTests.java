@@ -17,9 +17,11 @@
 package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.aether.repository.RemoteRepository;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.SpringBootVersion;
@@ -42,6 +44,28 @@ class MavenClasspathEntryTests {
 				.findFirst();
 		assertThat(starterWebEntry.isPresent())
 				.withFailMessage("Unable to find spring-boot-starter with path that contains " + starterWebPathPartial)
+				.isTrue();
+	}
+
+	@Test
+	void resolveDependencyWhenCustomRepository() {
+		List<RemoteRepository> repositories = new ArrayList<>();
+		repositories.add(
+				new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
+		repositories
+				.add(new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/")
+						.build());
+		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.1.0-RC1",
+				repositories);
+		List<String> entries = classpathEntry.resolve();
+		assertThat(entries).hasSize(2);
+		String mavenLocal = new File(System.getProperty("user.home"), ".m2/repository").getAbsolutePath();
+		entries.forEach((entry) -> assertThat(entry).startsWith(mavenLocal));
+		String springCorePathPartial = "/org/springframework/spring-core/6.1.0-RC1/spring-core-6.1.0-RC1.jar";
+		Optional<String> springCoreEntry = entries.stream().filter((entry) -> entry.contains(springCorePathPartial))
+				.findFirst();
+		assertThat(springCoreEntry.isPresent())
+				.withFailMessage("Unable to find spring-core with path that contains " + springCorePathPartial)
 				.isTrue();
 	}
 
