@@ -28,7 +28,7 @@ You can add Spring Boot Testjars to your project by adding them to your Gradle o
 .build.gradle
 [source,groovy,subs=attributes+]
 ----
-testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:{TESTJARS_VERSION}')
+testImplementation("org.springframework.experimental.boot:spring-boot-testjars:$TESTJARS_VERSION")
 ----
 
 .pom.xml
