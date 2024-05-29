@@ -6,4 +6,5 @@
     <!-- Ignore third-party code -->
     <suppress files="LoggingMavenRepositoryListener\.java|LoggingMavenTransferListener\.java" checks=".*"/>
     <suppress files="SpringBootApplicationMain\.java" checks=".*"/>
+    <suppress files="JarLauncherDetector\.java" checks=".*"/>
 </suppressions>

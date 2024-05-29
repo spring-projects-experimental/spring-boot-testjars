@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.util.ClassUtils;
  * application.properties respectively.
  *
  * @author Rob Winch
+ * @author Daniel Garnier-Moiroux
  */
 public class CommonsExecWebServerFactoryBean
 		implements FactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
@@ -49,16 +50,17 @@ public class CommonsExecWebServerFactoryBean
 
 	private Map<String, String> systemProperties = new HashMap<>();
 
-	private String mainClass = "org.springframework.boot.loader.JarLauncher";
+	private String mainClass = "org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector";
 
 	private File applicationPortFile = createApplicationPortFile();
 
 	private CommonsExecWebServer webServer;
 
 	CommonsExecWebServerFactoryBean() {
+		Class<?> jarDetector = ClassUtils.resolveClassName(this.mainClass, null);
 		this.classpath.entries(new ResourceClasspathEntry(
 				"org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories",
-				"META-INF/spring.factories"));
+				"META-INF/spring.factories"), new RecursiveResourceClasspathEntry(jarDetector));
 	}
 
 	public static CommonsExecWebServerFactoryBean builder() {

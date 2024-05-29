@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,8 +39,8 @@ class CommonsExecWebServerFactoryBeanTests {
 		int index = args.indexOf("-classpath");
 		assertThat(index).isGreaterThanOrEqualTo(0);
 		assertThat(args).hasSizeGreaterThan(index + 1);
-		String classpath = args.get(index + 1);
-		URLClassLoader loader = new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }, null);
+		String classpathArgs = args.get(index + 1);
+		var loader = getClassLoaderFromArgs(classpathArgs);
 		assertThat(loader.findResource("META-INF/spring.factories")).isNotNull();
 		server.destroy();
 	}
@@ -73,6 +75,40 @@ class CommonsExecWebServerFactoryBeanTests {
 		String mainClass = null;
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> CommonsExecWebServerFactoryBean.builder().mainClass(mainClass));
+	}
+
+	@Test
+	void usesJarLauncherwhenNoMainClassDefined() throws Exception {
+		CommonsExecWebServer webServer = CommonsExecWebServerFactoryBean.builder().getObject();
+		String[] args = webServer.getCommandLine().getArguments();
+		assertThat(args[args.length - 1])
+				.isEqualTo("org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector");
+	}
+
+	@Test
+	void doesNotAddJarLauncherDetectorLauncherDetectorWhenMainClassDefined() throws Exception {
+		String mainClass = "example.Main";
+		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder().mainClass(mainClass).getObject();
+		List<String> args = Arrays.asList(server.getCommandLine().getArguments());
+		int index = args.indexOf("-classpath");
+		assertThat(index).isGreaterThanOrEqualTo(0);
+		assertThat(args).hasSizeGreaterThan(index + 1);
+		String classpathArgs = args.get(index + 1);
+		URLClassLoader loader = getClassLoaderFromArgs(classpathArgs);
+		assertThat(
+				loader.findResource("org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector"))
+						.isNull();
+		server.destroy();
+	}
+
+	private static URLClassLoader getClassLoaderFromArgs(String classpathArgs) throws MalformedURLException {
+		var paths = new ArrayList<URL>();
+		for (String path : classpathArgs.split(":")) {
+			var url = new File(path).toURI().toURL();
+			paths.add(url);
+		}
+		URLClassLoader loader = new URLClassLoader(paths.toArray(new URL[] {}), null);
+		return loader;
 	}
 
 }

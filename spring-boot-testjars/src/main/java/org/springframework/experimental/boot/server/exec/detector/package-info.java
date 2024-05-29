@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 /**
- * Provides a main class which detects which Spring Boot JarLauncher to use. It also
- * provides a default class to run Spring Boot applications against. This is intentionally
- * left otherwise empty to avoid scanning classes unnecessarily.
+ * Provides a default main class to run detect the correct Spring Boot JarLauncher.
  */
-package org.springframework.experimental.boot.server.exec.main;
+package org.springframework.experimental.boot.server.exec.detector;
