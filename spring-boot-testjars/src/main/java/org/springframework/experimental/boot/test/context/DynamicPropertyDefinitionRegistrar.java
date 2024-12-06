@@ -16,10 +16,14 @@
 
 package org.springframework.experimental.boot.test.context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.testcontainers.properties.TestcontainersPropertySource;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -27,7 +31,9 @@ import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.util.ClassUtils;
 
 /**
  * Finds beans annotated with {@link DynamicProperty} and adds the properties to the
@@ -52,11 +58,39 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory listableBeanFactory) {
-			registerBeanDefinitions(listableBeanFactory, registry);
+			if (ClassUtils.isPresent("org.springframework.test.context.DynamicPropertyRegistrar",
+					getClass().getClassLoader())) {
+				registerDynamicPropertyRegistrar(listableBeanFactory, registry);
+			}
+			else {
+				registerTestcontainersPropertySource(listableBeanFactory, registry);
+			}
 		}
 	}
 
-	private void registerBeanDefinitions(ConfigurableListableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
+	private void registerDynamicPropertyRegistrar(ConfigurableListableBeanFactory beanFactory,
+			BeanDefinitionRegistry registry) {
+		List<DynamicPropertyRegistryProperty> properties = new ArrayList<>();
+		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
+			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
+			DynamicPropertyRegistryProperty property = createRegistryProperty(dynamicPropertyBeanDefinition,
+					dynamicPropertyBeanName);
+			if (property == null) {
+				throw new IllegalStateException(
+						"Missing @DynamicProperty annotation on BeanDefinition of " + dynamicPropertyBeanName);
+			}
+			properties.add(property);
+		}
+
+		BeanDefinitionBuilder registrarBdb = BeanDefinitionBuilder
+				.rootBeanDefinition(DynamicPropertyRegistryPropertyRegistrar.class);
+		registrarBdb.addConstructorArgValue(properties);
+		registry.registerBeanDefinition("testjarsDynamicPropertyRegistryPropertyRegistrar",
+				registrarBdb.getBeanDefinition());
+	}
+
+	private void registerTestcontainersPropertySource(ConfigurableListableBeanFactory beanFactory,
+			BeanDefinitionRegistry registry) {
 		DynamicPropertyRegistry properties = TestcontainersPropertySource.attach(this.environment);
 		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
 			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
@@ -80,6 +114,23 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 					() -> this.beanFactory.getBean(dynamicPropertyBeanName));
 		}
 		return null;
+	}
+
+	static class DynamicPropertyRegistryPropertyRegistrar implements DynamicPropertyRegistrar {
+
+		private final List<DynamicPropertyRegistryProperty> properties;
+
+		DynamicPropertyRegistryPropertyRegistrar(List<DynamicPropertyRegistryProperty> properties) {
+			this.properties = properties;
+		}
+
+		@Override
+		public void accept(DynamicPropertyRegistry registry) {
+			for (DynamicPropertyRegistryProperty property : this.properties) {
+				registry.add(property.name(), property.value());
+			}
+		}
+
 	}
 
 }

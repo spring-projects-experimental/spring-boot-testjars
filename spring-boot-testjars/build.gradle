@@ -39,7 +39,7 @@ dependencies {
 	mavenImplementation "org.apache.maven.resolver:maven-resolver-transport-file:${mavenResolverVersion}"
 	mavenImplementation "org.apache.maven.resolver:maven-resolver-transport-http:${mavenResolverVersion}"
 	mavenImplementation "org.apache.maven.resolver:maven-resolver-supplier:${mavenResolverVersion}"
-	implementation platform('org.springframework.boot:spring-boot-dependencies:3.2.2')
+	implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
 	implementation 'org.apache.commons:commons-exec:1.3'
 	implementation 'org.springframework:spring-test'
 	implementation 'org.springframework.boot:spring-boot-testcontainers'
