@@ -87,16 +87,12 @@ static CommonsExecWebServerFactoryBean authorizationServer() {
 
 You can also use the `MavenClasspathEntry` constructor directly or additional helper methods to add dependencies other than Spring Boot starters to the classpath.
 
-To use this feature, use the https://docs.gradle.org/current/userguide/feature_variants.html[feature variant] named `maven` by adding it to your Gradle or Maven build.
+To use this feature, add the following to your build:
 
 .build.gradle
 [source,groovy,subs=attributes+]
 ----
-testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:{TESTJARS_VERSION}') {
-        capabilities {
-            requireCapability("org.springframework.experimental.boot:spring-boot-testjars-maven")
-        }
-    }
+testImplementation 'org.springframework.experimental.boot:spring-boot-testjars-maven:{TESTJARS_VERSION}'
 ----
 
 .pom.xml
@@ -104,8 +100,7 @@ testImplementation ('org.springframework.experimental.boot:spring-boot-testjars:
 ----
 <dependency>
     <groupId>org.springframework.experimental.boot</groupId>
-    <artifactId>spring-boot-testjars</artifactId>
-    <classifier>maven</classifier>
+    <artifactId>spring-boot-testjars-maven</artifactId>
     <version>{TESTJARS_VERSION}</version>
 </dependency>
 ----

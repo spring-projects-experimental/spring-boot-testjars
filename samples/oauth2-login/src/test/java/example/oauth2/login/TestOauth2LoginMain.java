@@ -19,7 +19,6 @@ package example.oauth2.login;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.experimental.boot.server.exec.CommonsExecWebServer;
 import org.springframework.experimental.boot.server.exec.CommonsExecWebServerFactoryBean;
 import org.springframework.experimental.boot.test.context.EnableDynamicProperty;
 import org.springframework.experimental.boot.test.context.OAuth2ClientProviderIssuerUri;

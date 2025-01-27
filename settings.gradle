@@ -11,5 +11,6 @@ pluginManagement {
 rootProject.name = 'spring-boot-testjars-build'
 
 include ':spring-boot-testjars'
+include ':spring-boot-testjars-maven'
 include ':samples:oauth2-login'
 include ':samples:oauth2-login-custom-config'

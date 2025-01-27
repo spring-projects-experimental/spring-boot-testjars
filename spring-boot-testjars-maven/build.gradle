@@ -1,0 +1,48 @@
+plugins {
+	id'java-library'
+	id'checkstyle'
+	id'io.spring.javaformat' version'0.0.27'
+	id "io.spring.security.maven" version "1.0.1"
+	id 'publish-conventions'
+}
+
+group = 'org.springframework.experimental.boot'
+
+ext {
+	mavenResolverVersion = '1.9.18'
+	mavenVersion = '3.9.4'
+}
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+checkstyle {
+	toolVersion = "9.3"
+}
+
+dependencies {
+	checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.40")
+	api project(':spring-boot-testjars')
+	api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
+	api 'org.springframework.boot:spring-boot-starter'
+	api "org.apache.maven:maven-resolver-provider:${mavenVersion}"
+	api "org.apache.maven.resolver:maven-resolver-api:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-spi:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-util:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-impl:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-connector-basic:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-transport-file:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-transport-http:${mavenResolverVersion}"
+	api "org.apache.maven.resolver:maven-resolver-supplier:${mavenResolverVersion}"
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework:spring-web'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
