@@ -23,7 +23,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -107,7 +106,7 @@ class CommonsExecWebServerFactoryBeanTests {
 		String expectedPort = "1234";
 		String portSystemProperty = "server.port";
 		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder()
-				.addSystemProperties(Map.of(portSystemProperty, expectedPort)).getObject();
+				.systemProperties((props) -> props.put(portSystemProperty, expectedPort)).getObject();
 		assertThat(server.getCommandLine().getArguments()).contains("-D" + portSystemProperty + "=" + expectedPort);
 	}
 

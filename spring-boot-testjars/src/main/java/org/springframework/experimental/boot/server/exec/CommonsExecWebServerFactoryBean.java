@@ -94,8 +94,8 @@ public class CommonsExecWebServerFactoryBean
 		return this;
 	}
 
-	public CommonsExecWebServerFactoryBean addSystemProperties(Map<String, String> systemProperties) {
-		this.systemProperties.putAll(systemProperties);
+	public CommonsExecWebServerFactoryBean systemProperties(Consumer<Map<String, String>> systemProperties) {
+		systemProperties.accept(this.systemProperties);
 		return this;
 	}
 
