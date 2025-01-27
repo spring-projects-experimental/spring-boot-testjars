@@ -23,6 +23,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -99,6 +100,15 @@ class CommonsExecWebServerFactoryBeanTests {
 				loader.findResource("org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector"))
 						.isNull();
 		server.destroy();
+	}
+
+	@Test
+	void serverPortWhenSpecifiedThenNotOverridden() throws Exception {
+		String expectedPort = "1234";
+		String portSystemProperty = "server.port";
+		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder()
+				.addSystemProperties(Map.of(portSystemProperty, expectedPort)).getObject();
+		assertThat(server.getCommandLine().getArguments()).contains("-D" + portSystemProperty + "=" + expectedPort);
 	}
 
 	private static URLClassLoader getClassLoaderFromArgs(String classpathArgs) throws MalformedURLException {
