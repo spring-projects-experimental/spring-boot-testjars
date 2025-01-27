@@ -26,7 +26,7 @@ import org.apache.commons.exec.CommandLine;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.SmartFactoryBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -40,7 +40,7 @@ import org.springframework.util.ClassUtils;
  * @author Daniel Garnier-Moiroux
  */
 public class CommonsExecWebServerFactoryBean
-		implements FactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
+		implements SmartFactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
 
 	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = "org.springframework.experimental.boot.server.exec.main.SpringBootApplicationMain";
 
@@ -97,6 +97,11 @@ public class CommonsExecWebServerFactoryBean
 	public CommonsExecWebServerFactoryBean addSystemProperties(Map<String, String> systemProperties) {
 		this.systemProperties.putAll(systemProperties);
 		return this;
+	}
+
+	@Override
+	public boolean isEagerInit() {
+		return true;
 	}
 
 	private CommonsExecWebServer build() {

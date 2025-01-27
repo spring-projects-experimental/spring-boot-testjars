@@ -111,6 +111,13 @@ class CommonsExecWebServerFactoryBeanTests {
 		assertThat(server.getCommandLine().getArguments()).contains("-D" + portSystemProperty + "=" + expectedPort);
 	}
 
+	// gh-53
+	@Test
+	void isEagerInitIsTrue() {
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
+		assertThat(factory.isEagerInit()).isTrue();
+	}
+
 	private static URLClassLoader getClassLoaderFromArgs(String classpathArgs) throws MalformedURLException {
 		var paths = new ArrayList<URL>();
 		for (String path : classpathArgs.split(":")) {
