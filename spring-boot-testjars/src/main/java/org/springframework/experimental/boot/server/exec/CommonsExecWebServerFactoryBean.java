@@ -111,7 +111,9 @@ public class CommonsExecWebServerFactoryBean
 	private String[] createSystemPropertyArgs() {
 		Map<String, String> systemPropertyArgs = new HashMap<>(this.systemProperties);
 		systemPropertyArgs.put("PORTFILE", this.applicationPortFile.getAbsolutePath());
-		systemPropertyArgs.put("server.port", "0");
+		if (!systemPropertyArgs.containsKey("server.port")) {
+			systemPropertyArgs.put("server.port", "0");
+		}
 		return systemPropertyArgs.entrySet().stream().map((e) -> "-D" + e.getKey() + "=" + e.getValue() + "")
 				.toArray(String[]::new);
 	}
