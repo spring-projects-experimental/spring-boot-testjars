@@ -26,7 +26,7 @@ import org.springframework.core.annotation.AliasFor;
 
 /**
  * A composed annotation for {@link DynamicProperty} for specifying the property name
- * "spring.security.oauth2.client.provider.${providerName}.issuer-uri" such that
+ * "spring.security.oauth2.client.provider.{providerName}.issuer-uri" such that
  * providerName's value is specified by {@link #providerName()}.
  *
  * @author Rob Winch
@@ -34,7 +34,7 @@ import org.springframework.core.annotation.AliasFor;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@DynamicPortUrl(name = "spring.security.oauth2.client.provider.${providerName}.issuer-uri")
+@DynamicPortUrl(name = "spring.security.oauth2.client.provider.{providerName}.issuer-uri")
 public @interface OAuth2ClientProviderIssuerUri {
 
 	/**

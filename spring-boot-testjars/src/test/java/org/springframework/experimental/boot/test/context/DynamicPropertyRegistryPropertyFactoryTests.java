@@ -137,7 +137,7 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@DynamicProperty(name = "message", value = "'Hello ${firstName}'")
+	@DynamicProperty(name = "message", value = "'Hello {firstName}'")
 	@interface ValueWithVariable {
 
 		String firstName();

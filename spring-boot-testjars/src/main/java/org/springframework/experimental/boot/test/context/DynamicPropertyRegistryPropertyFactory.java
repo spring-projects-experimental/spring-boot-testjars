@@ -18,15 +18,14 @@ package org.springframework.experimental.boot.test.context;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.Supplier;
 
 import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
  * Creates a {@link DynamicPropertyRegistryProperty} from the {@link DynamicProperty}
@@ -44,12 +43,11 @@ class DynamicPropertyRegistryPropertyFactory {
 		if (dynamicProperty == null) {
 			return null;
 		}
-		MutablePropertySources propertySources = new MutablePropertySources();
-		Map<String, Object> annotationProperties = collectAttributes(mergedAnnotation);
-		propertySources.addFirst(new MapPropertySource("dynamicProperty", annotationProperties));
-		PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
-		String value = propertyResolver.resolvePlaceholders(dynamicProperty.value());
-		String name = propertyResolver.resolvePlaceholders(dynamicProperty.name());
+		Properties annotationProperties = new Properties();
+		annotationProperties.putAll(collectAttributes(mergedAnnotation));
+		PropertyPlaceholderHelper propertyResolver = new PropertyPlaceholderHelper("{", "}");
+		String value = propertyResolver.replacePlaceholders(dynamicProperty.value(), annotationProperties);
+		String name = propertyResolver.replacePlaceholders(dynamicProperty.name(), annotationProperties);
 		Expression expression = this.parser.parseExpression(value);
 		return new DynamicPropertyRegistryProperty(name, () -> expression.getValue(rootObject.get()));
 	}

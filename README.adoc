@@ -223,7 +223,7 @@ The value is calculated as `http://{host}:{port}{contextRoot}`.
 
 This provides a mapping to issuer-uri of https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.oauth2.client.provider[the OAuth provider details].
 
-* name `spring.security.oauth2.client.provider.${providerName}.issuer-uri` with a default `providerName` of `spring`. The `providerName` can be overridden with the `OAuth2ClientProviderIssuerUri.providerName` property.
+* name `spring.security.oauth2.client.provider.{providerName}.issuer-uri` with a default `providerName` of `spring`. The `providerName` can be overridden with the `OAuth2ClientProviderIssuerUri.providerName` property.
 * value `'http://127.0.0.1:' + port` which can be overriden with the `OAuth2ClientProviderIssuerUri.value` property
 
 == Samples

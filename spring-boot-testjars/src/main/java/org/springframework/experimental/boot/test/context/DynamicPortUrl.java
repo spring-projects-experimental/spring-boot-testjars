@@ -59,7 +59,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@DynamicProperty(name = "${name}", value = "'http://${host}:' + port + '${contextRoot}'")
+@DynamicProperty(name = "{name}", value = "'http://{host}:' + port + '{contextRoot}'")
 public @interface DynamicPortUrl {
 
 	/**
