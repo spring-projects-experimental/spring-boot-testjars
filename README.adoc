@@ -147,6 +147,20 @@ If present, `CommonsExecWebServerFactoryBean` will add the resources `webjars/$b
 This is an extension to Spring Boot's existing https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testcontainers.at-development-time.dynamic-properties[`DynamicPropertyRegistry`].
 It allows annotating arbitrary Spring Bean definitions and adding a property that references properties on that Bean.
 
+=== @EnableDynamicProperty
+
+In order to use `@DynamicProperty` annotations, it must be enabled with the `@EnableDynamicProperty` annotation as show below:
+
+[source,java]
+----
+@Configuration
+@EnableDynamicProperty
+class MyConfiguration {
+	// ...
+}
+----
+
+=== @DynamicProperty Example
 
 For example, the following `@DynamicProperty` definition uses https://docs.spring.io/spring-framework/reference/core/expressions.html[SpEL] with the current Bean as the https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html[root object] for the value annotation to add a property named `messages.url` to the URL and the arbitrary available port of the `CommonsExecWebServer`:
 
