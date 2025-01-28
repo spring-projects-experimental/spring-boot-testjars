@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,32 @@
 
 package org.springframework.experimental.boot.test.context;
 
-import example.authzserver.AuthServerMain;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = { AuthServerMain.class, DynamicPropertyOverridesTests.Configuration.class })
-class DynamicPropertyOverridesTests {
+@ExtendWith(SpringExtension.class)
+class DynamicPropertyAutoConfigurationTests {
 
 	@Test
 	void dynamicPropertyJavadoc(@Autowired Environment environment) {
-		assertThat(environment.getProperty("shouldoverride")).isEqualTo("http://localhost:1234");
+		assertThat(environment.getProperty("service.url")).isEqualTo("http://localhost:1234");
 	}
 
+	@EnableAutoConfiguration
 	@TestConfiguration(proxyBeanMethods = false)
 	static class Configuration {
 
 		@Bean
-		@DynamicProperty(name = "shouldoverride", value = "'http://localhost:' + port")
+		@DynamicProperty(name = "service.url", value = "'http://localhost:' + port")
 		static WebServer messageService() {
 			return new WebServer();
 		}
