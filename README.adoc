@@ -195,6 +195,16 @@ static CommonsExecWebServerFactoryBean oauthServer() {
 
 This is a list of well known composed `@DynamicProperty` annotations.
 
+==== @DynamicPortUrl
+
+This provides a simple way of mapping a property to a URL with a dynamic port that is expressed as the port property on the Bean that is created.
+The value is calculated as `http://{host}:{port}{contextRoot}`.
+
+* name - the property name to use
+* host - the host to use (default is `localhost`)
+* port - a valid SpEL expression that determines the port to use for the URL (default port)
+* contextRoot - the context root to use (default is empty String)
+
 ==== @OAuth2ClientProviderIssuerUri
 
 This provides a mapping to issuer-uri of https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.oauth2.client.provider[the OAuth provider details].

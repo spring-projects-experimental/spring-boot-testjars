@@ -45,14 +45,22 @@ class DynamicPropertyRegistryPropertyFactory {
 			return null;
 		}
 		MutablePropertySources propertySources = new MutablePropertySources();
-		MergedAnnotation<?> metaSource = mergedAnnotation.getMetaSource();
-		Map<String, Object> annotationProperties = (metaSource != null) ? metaSource.asMap() : new HashMap<>();
+		Map<String, Object> annotationProperties = collectAttributes(mergedAnnotation);
 		propertySources.addFirst(new MapPropertySource("dynamicProperty", annotationProperties));
 		PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
 		String value = propertyResolver.resolvePlaceholders(dynamicProperty.value());
 		String name = propertyResolver.resolvePlaceholders(dynamicProperty.name());
 		Expression expression = this.parser.parseExpression(value);
 		return new DynamicPropertyRegistryProperty(name, () -> expression.getValue(rootObject.get()));
+	}
+
+	private Map<String, Object> collectAttributes(MergedAnnotation<?> mergedAnnotation) {
+		Map<String, Object> attributes = new HashMap<>();
+		for (MergedAnnotation<?> metaSource = mergedAnnotation; metaSource != null; metaSource = metaSource
+				.getMetaSource()) {
+			attributes.putAll(metaSource.asMap());
+		}
+		return attributes;
 	}
 
 }

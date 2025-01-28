@@ -34,7 +34,7 @@ import org.springframework.core.annotation.AliasFor;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@DynamicProperty(name = "spring.security.oauth2.client.provider.${providerName}.issuer-uri", value = "")
+@DynamicPortUrl(name = "spring.security.oauth2.client.provider.${providerName}.issuer-uri")
 public @interface OAuth2ClientProviderIssuerUri {
 
 	/**
@@ -42,8 +42,15 @@ public @interface OAuth2ClientProviderIssuerUri {
 	 * port".
 	 * @return the value of the property.
 	 */
-	@AliasFor(annotation = DynamicProperty.class)
-	String value() default "'http://127.0.0.1:' + port";
+	@AliasFor(annotation = DynamicPortUrl.class)
+	String host() default "127.0.0.1";
+
+	/**
+	 * Allows specifying a context root. The default is to have no context root.
+	 * @return the name of the provider used in the property name.
+	 */
+	@AliasFor(annotation = DynamicPortUrl.class)
+	String contextRoot() default "";
 
 	/**
 	 * Allows overriding the providerName portion of the property name. Default is

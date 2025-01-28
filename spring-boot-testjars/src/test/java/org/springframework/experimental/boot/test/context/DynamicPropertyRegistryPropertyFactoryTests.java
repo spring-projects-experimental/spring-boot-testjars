@@ -80,6 +80,24 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 		assertThat(registryProperty.value().get()).isEqualTo("Hello Rob");
 	}
 
+	@Test
+	void dynamicPortUrlWhenDefault() throws Exception {
+		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("dynamicPortUrlWithDefault");
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
+		assertThat(registryProperty.name()).isEqualTo("message.url");
+		assertThat(registryProperty.value().get()).isEqualTo("http://localhost:1234");
+	}
+
+	@Test
+	void dynamicPortUrlWhenOverride() throws Exception {
+		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("dynamicPortUrlWithOverride");
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
+		assertThat(registryProperty.name()).isEqualTo("message.url");
+		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234/messages");
+	}
+
 	private MergedAnnotation<DynamicProperty> dynamicPropertyFrom(String methodName) throws NoSuchMethodException {
 		MergedAnnotations mergedAnnotations = MergedAnnotations.from(getClass().getDeclaredMethod(methodName));
 		return mergedAnnotations.get(DynamicProperty.class);
@@ -95,7 +113,7 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 
 	}
 
-	@OAuth2ClientProviderIssuerUri("'http://localhost:' + port")
+	@OAuth2ClientProviderIssuerUri(host = "localhost")
 	static void issueUriWithOverriddenValue() {
 
 	}
@@ -108,6 +126,14 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 	@ValueWithVariable(firstName = "Rob")
 	static void valueWithVariable() {
 
+	}
+
+	@DynamicPortUrl(name = "message.url")
+	static void dynamicPortUrlWithDefault() {
+	}
+
+	@DynamicPortUrl(name = "message.url", host = "127.0.0.1", contextRoot = "/messages")
+	static void dynamicPortUrlWithOverride() {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
