@@ -36,7 +36,7 @@ class TestOauth2LoginMain {
 			.mainClass(Main.class.getName())
 			.classpath((classpath) -> classpath
 				.entries(springBootStarter("oauth2-authorization-server"))
-				.recursive(Main.class)
+				.scan(Main.class)
 			);
 		// @formatter:on
 	}

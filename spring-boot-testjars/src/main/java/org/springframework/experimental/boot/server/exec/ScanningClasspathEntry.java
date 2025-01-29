@@ -34,13 +34,13 @@ import org.springframework.util.FileSystemUtils;
  *
  * @author Rob Winch
  */
-class RecursiveResourceClasspathEntry implements ClasspathEntry {
+class ScanningClasspathEntry implements ClasspathEntry {
 
 	private final Class<?> clazz;
 
 	private Path classpath;
 
-	RecursiveResourceClasspathEntry(Class<?> clazz) {
+	ScanningClasspathEntry(Class<?> clazz) {
 		this.clazz = clazz;
 	}
 

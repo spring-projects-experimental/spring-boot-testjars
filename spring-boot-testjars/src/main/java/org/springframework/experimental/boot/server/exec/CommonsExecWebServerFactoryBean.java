@@ -60,7 +60,7 @@ public class CommonsExecWebServerFactoryBean
 		Class<?> jarDetector = ClassUtils.resolveClassName(this.mainClass, null);
 		this.classpath.entries(new ResourceClasspathEntry(
 				"org/springframework/experimental/boot/testjars/classpath-entries/META-INF/spring.factories",
-				"META-INF/spring.factories"), new RecursiveResourceClasspathEntry(jarDetector));
+				"META-INF/spring.factories"), new ScanningClasspathEntry(jarDetector));
 	}
 
 	public static CommonsExecWebServerFactoryBean builder() {
@@ -80,7 +80,7 @@ public class CommonsExecWebServerFactoryBean
 	public CommonsExecWebServerFactoryBean defaultSpringBootApplicationMain() {
 		mainClass(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME);
 		Class<?> mainClass = ClassUtils.resolveClassName(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME, null);
-		return classpath((classpath) -> classpath.recursive(mainClass));
+		return classpath((classpath) -> classpath.scan(mainClass));
 	}
 
 	public CommonsExecWebServerFactoryBean mainClass(String mainClass) {

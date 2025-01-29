@@ -27,9 +27,9 @@ import org.springframework.boot.info.OsInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class RecursiveResourceClasspathEntryTests {
+class ScanningClasspathEntryTests {
 
-	private RecursiveResourceClasspathEntry classpathEntry;
+	private ScanningClasspathEntry classpathEntry;
 
 	@AfterEach
 	void cleanupEach() {
@@ -40,7 +40,7 @@ class RecursiveResourceClasspathEntryTests {
 
 	@Test
 	void resolve() {
-		this.classpathEntry = new RecursiveResourceClasspathEntry(AuthServerMain.class);
+		this.classpathEntry = new ScanningClasspathEntry(AuthServerMain.class);
 		List<String> classpath = this.classpathEntry.resolve();
 		assertThat(classpath).hasSize(1);
 		File authServerMain = new File(classpath.get(0));
@@ -50,7 +50,7 @@ class RecursiveResourceClasspathEntryTests {
 
 	@Test
 	void resolveWhenJar() {
-		this.classpathEntry = new RecursiveResourceClasspathEntry(OsInfo.class);
+		this.classpathEntry = new ScanningClasspathEntry(OsInfo.class);
 		List<String> classpath = this.classpathEntry.resolve();
 		assertThat(classpath).hasSize(1);
 		File authServerMain = new File(classpath.get(0));

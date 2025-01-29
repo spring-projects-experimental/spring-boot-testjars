@@ -38,11 +38,11 @@ public class ClasspathBuilder {
 
 	/**
 	 * Recursively adds the package of the provided class.
-	 * @param clazz the class to add to the classpath
+	 * @param clazz the class used to determine the basePackage for scanning
 	 * @return the {@link ClasspathBuilder} for additional modifications.
 	 */
-	public ClasspathBuilder recursive(Class<?> clazz) {
-		this.classpath.add(new RecursiveResourceClasspathEntry(clazz));
+	public ClasspathBuilder scan(Class<?> clazz) {
+		this.classpath.add(new ScanningClasspathEntry(clazz));
 		return this;
 	}
 
