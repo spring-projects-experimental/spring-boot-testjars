@@ -55,4 +55,8 @@ public class ClasspathBuilder {
 		this.classpath.stream().forEachOrdered(ClasspathEntry::cleanup);
 	}
 
+	List<ClasspathEntry> getClasspath() {
+		return this.classpath;
+	}
+
 }

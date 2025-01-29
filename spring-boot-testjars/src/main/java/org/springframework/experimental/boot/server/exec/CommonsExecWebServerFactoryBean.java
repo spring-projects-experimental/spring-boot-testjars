@@ -144,6 +144,7 @@ public class CommonsExecWebServerFactoryBean
 
 	@Override
 	public void setBeanName(String beanName) {
+		defaultApplicationConfiguration(beanName, "yaml");
 		defaultApplicationConfiguration(beanName, "yml");
 		defaultApplicationConfiguration(beanName, "properties");
 	}

@@ -20,11 +20,14 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import org.springframework.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -115,6 +118,52 @@ class CommonsExecWebServerFactoryBeanTests {
 	void isEagerInitIsTrue() {
 		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
 		assertThat(factory.isEagerInit()).isTrue();
+	}
+
+	@Test
+	void classpathWhenYmlDefaults() throws Exception {
+		ClassPathResource expected = new ClassPathResource("testjars/hasYml/application.yml");
+		String expectedContent = expected.getContentAsString(Charset.defaultCharset());
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
+		factory.setBeanName("hasYml");
+		factory.classpath((cp) -> {
+			List<ClasspathEntry> classpath = cp.getClasspath();
+			assertClasspathContainsResourceWithContent(classpath, "application.yml", expectedContent);
+		});
+	}
+
+	@Test
+	void classpathWhenPropertiesDefaults() throws Exception {
+		ClassPathResource expected = new ClassPathResource("testjars/hasProperties/application.properties");
+		String expectedContent = expected.getContentAsString(Charset.defaultCharset());
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
+		factory.setBeanName("hasProperties");
+		factory.classpath((cp) -> {
+			List<ClasspathEntry> classpath = cp.getClasspath();
+			assertClasspathContainsResourceWithContent(classpath, "application.properties", expectedContent);
+		});
+	}
+
+	// gh-35
+	@Test
+	void classpathWhenYamlDefaults() throws Exception {
+		ClassPathResource expected = new ClassPathResource("testjars/hasYaml/application.yaml");
+		String expectedContent = expected.getContentAsString(Charset.defaultCharset());
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
+		factory.setBeanName("hasYaml");
+		factory.classpath((cp) -> {
+			List<ClasspathEntry> classpath = cp.getClasspath();
+			assertClasspathContainsResourceWithContent(classpath, "application.yaml", expectedContent);
+		});
+	}
+
+	private void assertClasspathContainsResourceWithContent(List<ClasspathEntry> classpath, String resourceName,
+			String expectedContent) {
+		ClasspathEntry lastEntry = classpath.get(classpath.size() - 1);
+		String basePath = lastEntry.resolve().get(0);
+		File yaml = new File(basePath, resourceName);
+		assertThat(yaml).exists();
+		assertThat(yaml).content().isEqualTo(expectedContent);
 	}
 
 	private static URLClassLoader getClassLoaderFromArgs(String classpathArgs) throws MalformedURLException {
