@@ -26,6 +26,11 @@ public class ClasspathBuilder {
 
 	private List<ClasspathEntry> classpath = new ArrayList<>();
 
+	public ClasspathBuilder classes(Class<?>... classes) {
+		Arrays.stream(classes).map(ResourceClasspathEntry::new).forEachOrdered(this.classpath::add);
+		return this;
+	}
+
 	public ClasspathBuilder entries(ClasspathEntry... entries) {
 		Arrays.stream(entries).forEachOrdered(this.classpath::add);
 		return this;

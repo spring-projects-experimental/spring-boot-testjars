@@ -34,6 +34,11 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 
 	private Path classpath;
 
+	public ResourceClasspathEntry(Class<?> clazz) {
+		this.existingResourceName = clazz.getName().replace('.', '/') + ".class";
+		this.classpathResourceName = this.existingResourceName;
+	}
+
 	public ResourceClasspathEntry(String existingResourceName, String classpathResourceName) {
 		this.existingResourceName = existingResourceName;
 		this.classpathResourceName = classpathResourceName;
