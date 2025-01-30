@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.springframework.core.io.ClassPathResource;
@@ -36,12 +37,25 @@ import org.springframework.util.FileSystemUtils;
  */
 class ScanningClasspathEntry implements ClasspathEntry {
 
-	private final Class<?> clazz;
+	private final String resourcePattern;
+
+	private final Function<String, String> renameResource;
 
 	private Path classpath;
 
+	ScanningClasspathEntry(String baseDir) {
+		this.resourcePattern = baseDir + "/**";
+		this.renameResource = (name) -> {
+			String prefix = baseDir + "/";
+			int index = name.lastIndexOf(prefix);
+			return (index > -1) ? name.substring(index + prefix.length()) : name;
+		};
+	}
+
 	ScanningClasspathEntry(Class<?> clazz) {
-		this.clazz = clazz;
+		String resourcePath = toResourceName(clazz.getPackageName());
+		this.resourcePattern = resourcePath + "/**";
+		this.renameResource = (name) -> name.substring(name.lastIndexOf(resourcePath));
 	}
 
 	Path getClasspath() {
@@ -57,16 +71,14 @@ class ScanningClasspathEntry implements ClasspathEntry {
 	}
 
 	private Path createClasspath() {
-		String resourcePath = toResourceName(this.clazz.getPackageName());
-		String resourcePattern = resourcePath + "/**";
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 		try {
 			Path classpath = Files.createTempDirectory("classpath-");
-			Resource[] resources = resolver.getResources(resourcePattern);
+			Resource[] resources = resolver.getResources(this.resourcePattern);
 			for (Resource resource : resources) {
-				String path = getPath(resource);
-				if (!path.endsWith("/")) {
-					Path destination = classpath.resolve(resourcePath).resolve(resource.getFilename());
+				String path = this.renameResource.apply(getPath(resource));
+				if (!path.endsWith("/") && resource.isReadable()) {
+					Path destination = classpath.resolve(path);
 					destination.getParent().toFile().mkdirs();
 					Files.copy(resource.getInputStream(), destination);
 				}

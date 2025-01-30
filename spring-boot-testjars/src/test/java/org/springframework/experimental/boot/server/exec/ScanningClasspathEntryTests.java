@@ -68,4 +68,15 @@ class ScanningClasspathEntryTests {
 		assertThat(this.classpathEntry.getClasspath()).doesNotExist();
 	}
 
+	@Test
+	void configServer() {
+		this.classpathEntry = new ScanningClasspathEntry("testjars/configServer");
+		List<String> classpath = this.classpathEntry.resolve();
+		assertThat(classpath).hasSize(1);
+		File path = new File(classpath.get(0));
+		assertThat(path).exists();
+		assertThat(new File(path, "application.yml")).exists();
+		assertThat(new File(path, "configrepo/configclient.properties")).exists();
+	}
+
 }

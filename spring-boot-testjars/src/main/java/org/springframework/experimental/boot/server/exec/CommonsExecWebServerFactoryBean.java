@@ -148,9 +148,8 @@ public class CommonsExecWebServerFactoryBean
 
 	@Override
 	public void setBeanName(String beanName) {
-		defaultApplicationConfiguration(beanName, "yaml");
-		defaultApplicationConfiguration(beanName, "yml");
-		defaultApplicationConfiguration(beanName, "properties");
+		String basePath = "testjars/" + beanName;
+		this.classpath.entries(new ScanningClasspathEntry(basePath));
 	}
 
 	private void defaultApplicationConfiguration(String beanName, String extension) {

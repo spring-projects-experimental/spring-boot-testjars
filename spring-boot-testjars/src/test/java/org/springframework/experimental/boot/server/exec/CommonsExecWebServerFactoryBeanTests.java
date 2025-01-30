@@ -139,6 +139,7 @@ class CommonsExecWebServerFactoryBeanTests {
 		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
 		factory.setBeanName("hasProperties");
 		factory.classpath((cp) -> {
+			cp.build();
 			List<ClasspathEntry> classpath = cp.getClasspath();
 			assertClasspathContainsResourceWithContent(classpath, "application.properties", expectedContent);
 		});
