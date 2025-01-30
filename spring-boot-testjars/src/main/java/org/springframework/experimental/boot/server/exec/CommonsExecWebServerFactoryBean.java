@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -41,6 +43,8 @@ import org.springframework.util.ClassUtils;
  */
 public class CommonsExecWebServerFactoryBean
 		implements SmartFactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
+
+	private static Log logger = LogFactory.getLog(CommonsExecWebServerFactoryBean.class);
 
 	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = "org.springframework.experimental.boot.server.exec.main.SpringBootApplicationMain";
 
@@ -150,10 +154,21 @@ public class CommonsExecWebServerFactoryBean
 	}
 
 	private void defaultApplicationConfiguration(String beanName, String extension) {
-		ResourceClasspathEntry defaultApplicationConfig = new ResourceClasspathEntry(
-				"testjars/" + beanName + "/application." + extension, "application." + extension);
+		String existingResourceName = "testjars/" + beanName + "/application." + extension;
+		String classpathResourceName = "application." + extension;
+		ResourceClasspathEntry defaultApplicationConfig = new ResourceClasspathEntry(existingResourceName,
+				classpathResourceName);
 		if (defaultApplicationConfig.exists()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Adding default resource " + existingResourceName + " as " + classpathResourceName);
+			}
 			classpath((cp) -> cp.entries(defaultApplicationConfig));
+		}
+		else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("The default resource was not found " + existingResourceName
+						+ " and will not be added to the classpath as " + classpathResourceName);
+			}
 		}
 	}
 
