@@ -58,6 +58,24 @@ class MavenClasspathEntryTests {
 	}
 
 	@Test
+	void jdk() {
+		String cloudVersion = "4.2.0";
+		MavenClasspathEntry classpath = new MavenClasspathEntry(
+				"org.springframework.cloud:spring-cloud-config-server:" + cloudVersion);
+		List<String> entries = classpath.resolve();
+		String mavenLocal = new File(System.getProperty("user.home"), ".m2/repository").getAbsolutePath();
+		entries.forEach((entry) -> assertThat(entry).startsWith(mavenLocal));
+
+		String configServerPartialPath = "/org/springframework/cloud/spring-cloud-config-server/" + cloudVersion
+				+ "/spring-cloud-config-server-" + cloudVersion + ".jar";
+		String springCloudContextArtifactName = "spring-cloud-context";
+		assertThat(entries).anyMatch(entry -> entry.contains(configServerPartialPath))
+				.anyMatch(entry -> entry.contains(springCloudContextArtifactName));
+		// .withFailMessage("Unable to find spring-boot-starter with path that contains "
+		// + configServerPartialPath)
+	}
+
+	@Test
 	void resolveDependencyWhenCustomRepository() {
 		List<RemoteRepository> repositories = new ArrayList<>();
 		repositories.add(

@@ -19,7 +19,10 @@ package org.springframework.experimental.boot.server.exec;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,6 +176,7 @@ public class MavenClasspathEntry implements ClasspathEntry {
 	private static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
 		DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 
+		HashMap<Object, Object> sysProps = new HashMap<>(System.getProperties());
 		String homeDirectory = System.getProperty("user.home");
 		File mavenLocal = new File(homeDirectory, ".m2/repository");
 
@@ -181,6 +185,9 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 		session.setTransferListener(new LoggingMavenTransferListener());
 		session.setRepositoryListener(new LoggingMavenRepositoryListener());
+		session.setSystemProperties(sysProps);
+		session.setConfigProperties(sysProps);
+
 
 		// uncomment to generate dirty trees
 		// session.setDependencyGraphTransformer( null );
