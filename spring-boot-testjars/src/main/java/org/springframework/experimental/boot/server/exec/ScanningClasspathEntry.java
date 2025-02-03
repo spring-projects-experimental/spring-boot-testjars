@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -36,6 +39,8 @@ import org.springframework.util.FileSystemUtils;
  * @author Rob Winch
  */
 class ScanningClasspathEntry implements ClasspathEntry {
+
+	private Log logger = LogFactory.getLog(getClass());
 
 	private final String resourcePattern;
 
@@ -80,6 +85,9 @@ class ScanningClasspathEntry implements ClasspathEntry {
 				if (!path.endsWith("/") && resource.isReadable()) {
 					Path destination = classpath.resolve(path);
 					destination.getParent().toFile().mkdirs();
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("Copying " + path + " to " + destination);
+					}
 					Files.copy(resource.getInputStream(), destination);
 				}
 			}

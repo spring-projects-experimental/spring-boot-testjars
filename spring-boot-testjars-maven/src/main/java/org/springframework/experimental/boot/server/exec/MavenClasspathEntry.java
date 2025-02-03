@@ -39,6 +39,7 @@ import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactDescriptorPolicy;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
@@ -47,6 +48,7 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 
 import org.springframework.boot.SpringBootVersion;
 
@@ -144,9 +146,9 @@ public class MavenClasspathEntry implements ClasspathEntry {
 			}
 		}
 		catch (Exception ex) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("Error resolving artifact " + this.coords, ex);
-			}
+			String message = "Error resolving artifact " + this.coords;
+			this.logger.debug(message, ex);
+			throw new RuntimeException(message, ex);
 		}
 		return result;
 	}
@@ -188,6 +190,8 @@ public class MavenClasspathEntry implements ClasspathEntry {
 		session.setSystemProperties(sysProps);
 		session.setConfigProperties(sysProps);
 
+		SimpleArtifactDescriptorPolicy policy = new SimpleArtifactDescriptorPolicy(ArtifactDescriptorPolicy.STRICT);
+		session.setArtifactDescriptorPolicy(policy);
 
 		// uncomment to generate dirty trees
 		// session.setDependencyGraphTransformer( null );

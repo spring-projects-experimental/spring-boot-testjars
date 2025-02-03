@@ -24,6 +24,8 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteResultHandler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -40,6 +42,8 @@ import org.springframework.util.FileSystemUtils;
  * @author Rob Winch
  */
 public final class CommonsExecWebServer implements WebServer, InitializingBean, DisposableBean, AutoCloseable {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private final CommandLine commandLine;
 
@@ -78,6 +82,9 @@ public final class CommonsExecWebServer implements WebServer, InitializingBean, 
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setProcessDestroyer(this.processDestroyerBean);
 		try {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Executing command: " + this.commandLine);
+			}
 			executor.execute(this.commandLine, null, this.handler);
 		}
 		catch (Exception ex) {

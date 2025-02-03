@@ -65,7 +65,8 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 				}
 			}
 			catch (IOException ex) {
-				throw new RuntimeException(ex);
+				throw new RuntimeException("Failed to copy existingResourceName '" + this.existingResourceName
+						+ "' to '" + this.classpathResourceName + "'", ex);
 			}
 		}
 		return Arrays.asList(this.classpath.toFile().getAbsolutePath());
