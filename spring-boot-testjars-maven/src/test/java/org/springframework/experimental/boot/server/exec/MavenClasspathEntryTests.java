@@ -47,6 +47,16 @@ class MavenClasspathEntryTests {
 				.isTrue();
 	}
 
+	// gh-64
+	@Test
+	void runtimeDependencyResolved() {
+		MavenClasspathEntry classpath = new MavenClasspathEntry(
+				"org.springframework.boot:spring-boot-actuator-autoconfigure:3.4.1");
+		List<String> entries = classpath.resolve();
+		String runtimeDependency = "com/fasterxml/jackson/core/jackson-databind/2.18.2/jackson-databind-2.18.2.jar";
+		assertThat(entries).anyMatch(entry -> entry.contains(runtimeDependency));
+	}
+
 	@Test
 	void resolveDependencyWhenCustomRepository() {
 		List<RemoteRepository> repositories = new ArrayList<>();

@@ -123,10 +123,10 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 		Artifact artifact = new DefaultArtifact(this.coords);
 
-		DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
+		DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME, JavaScopes.COMPILE);
 
 		CollectRequest collectRequest = new CollectRequest();
-		collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+		collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
 		collectRequest.setRepositories(this.repositories);
 
 		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
