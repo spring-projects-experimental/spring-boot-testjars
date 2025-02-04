@@ -78,7 +78,7 @@ class ScanningClasspathEntry implements ClasspathEntry {
 	private Path createClasspath() {
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 		try {
-			Path classpath = Files.createTempDirectory("classpath-");
+			Path classpath = TempDir.tempDir();
 			Resource[] resources = resolver.getResources(this.resourcePattern);
 			for (Resource resource : resources) {
 				String path = this.renameResource.apply(getPath(resource));

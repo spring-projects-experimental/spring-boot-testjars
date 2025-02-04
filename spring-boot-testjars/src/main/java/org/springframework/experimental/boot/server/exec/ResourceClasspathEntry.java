@@ -51,18 +51,12 @@ public class ResourceClasspathEntry implements ClasspathEntry {
 	@Override
 	public List<String> resolve() {
 		if (this.classpath == null) {
+			this.classpath = TempDir.tempDir();
+			InputStream resource = getExistingResourceAsStream();
 			try {
-				this.classpath = Files.createTempDirectory("classpath-");
-				InputStream resource = getExistingResourceAsStream();
-				try {
-					Path destination = this.classpath.resolve(this.classpathResourceName);
-					destination.toFile().getParentFile().mkdirs();
-					Files.copy(resource, destination, StandardCopyOption.REPLACE_EXISTING);
-				}
-				catch (IOException ex) {
-					throw new RuntimeException("Failed to copy existingResourceName '" + this.existingResourceName
-							+ "' to '" + this.classpathResourceName + "'", ex);
-				}
+				Path destination = this.classpath.resolve(this.classpathResourceName);
+				destination.toFile().getParentFile().mkdirs();
+				Files.copy(resource, destination, StandardCopyOption.REPLACE_EXISTING);
 			}
 			catch (IOException ex) {
 				throw new RuntimeException("Failed to copy existingResourceName '" + this.existingResourceName
