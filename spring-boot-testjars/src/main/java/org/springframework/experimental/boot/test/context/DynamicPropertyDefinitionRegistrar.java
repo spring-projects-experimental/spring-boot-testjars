@@ -43,6 +43,8 @@ import org.springframework.util.ClassUtils;
  */
 class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
+	public static final String REGISTRAR_BEAN_NAME = "testjarsDynamicPropertyRegistryPropertyRegistrar";
+
 	private final DynamicPropertyRegistryPropertyFactory registryPropertyFactory;
 
 	private final BeanFactory beanFactory;
@@ -57,6 +59,9 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+		if (registry.containsBeanDefinition(REGISTRAR_BEAN_NAME)) {
+			return;
+		}
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory listableBeanFactory) {
 			if (ClassUtils.isPresent("org.springframework.test.context.DynamicPropertyRegistrar",
 					getClass().getClassLoader())) {
@@ -85,8 +90,7 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 		BeanDefinitionBuilder registrarBdb = BeanDefinitionBuilder
 				.rootBeanDefinition(DynamicPropertyRegistryPropertyRegistrar.class);
 		registrarBdb.addConstructorArgValue(properties);
-		registry.registerBeanDefinition("testjarsDynamicPropertyRegistryPropertyRegistrar",
-				registrarBdb.getBeanDefinition());
+		registry.registerBeanDefinition(REGISTRAR_BEAN_NAME, registrarBdb.getBeanDefinition());
 	}
 
 	private void registerTestcontainersPropertySource(ConfigurableListableBeanFactory beanFactory,
