@@ -59,8 +59,7 @@ class MavenClasspathEntryTests {
 
 	@Test
 	void optionalDependencyNotResolved() {
-		MavenClasspathEntry classpath = new MavenClasspathEntry(
-				"org.springframework.data:spring-data-commons:3.2.9");
+		MavenClasspathEntry classpath = new MavenClasspathEntry("org.springframework.data:spring-data-commons:3.2.9");
 		List<String> entries = classpath.resolve();
 		String optionalDependency = "spring-expression";
 		assertThat(entries).noneMatch(entry -> entry.contains(optionalDependency));
