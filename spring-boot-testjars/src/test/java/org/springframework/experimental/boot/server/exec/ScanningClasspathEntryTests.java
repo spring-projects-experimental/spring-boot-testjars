@@ -79,4 +79,10 @@ class ScanningClasspathEntryTests {
 		assertThat(new File(path, "configrepo/configclient.properties")).exists();
 	}
 
+	@Test
+	void missingPathThenNoExceptionAndEmpty() {
+		this.classpathEntry = new ScanningClasspathEntry("missing/path");
+		assertThat(this.classpathEntry.resolve()).isEmpty();
+	}
+
 }

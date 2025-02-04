@@ -16,10 +16,12 @@
 
 package org.springframework.experimental.boot.server.exec;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -46,6 +48,8 @@ class ScanningClasspathEntry implements ClasspathEntry {
 
 	private final Function<String, String> renameResource;
 
+	private Resource[] resources;
+
 	private Path classpath;
 
 	ScanningClasspathEntry(String baseDir) {
@@ -69,17 +73,23 @@ class ScanningClasspathEntry implements ClasspathEntry {
 
 	@Override
 	public List<String> resolve() {
-		if (this.classpath == null) {
-			this.classpath = createClasspath();
+		if (this.resources == null) {
+			this.resources = getResources();
+			this.classpath = createClasspath(this.resources);
 		}
-		return Arrays.asList(this.classpath.toFile().getAbsolutePath());
+		return this.classpath == null ? Collections.emptyList()
+				: Arrays.asList(this.classpath.toFile().getAbsolutePath());
 	}
 
-	private Path createClasspath() {
-		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+	private Path createClasspath(Resource[] resources) {
+		if (this.resources == null || this.resources.length == 0) {
+			return null;
+		}
 		try {
 			Path classpath = TempDir.tempDir();
-			Resource[] resources = resolver.getResources(this.resourcePattern);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Found " + resources.length + " resources for pattern " + this.resourcePattern);
+			}
 			for (Resource resource : resources) {
 				String path = this.renameResource.apply(getPath(resource));
 				if (!path.endsWith("/") && resource.isReadable()) {
@@ -98,6 +108,19 @@ class ScanningClasspathEntry implements ClasspathEntry {
 		}
 	}
 
+	private Resource[] getResources() {
+		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		try {
+			return resolver.getResources(this.resourcePattern);
+		}
+		catch (FileNotFoundException ex) {
+			return new Resource[0];
+		}
+		catch (IOException ex) {
+			throw new RuntimeException("Failed to resolve " + this.resourcePattern, ex);
+		}
+	}
+
 	private String getPath(Resource resource) {
 		if (resource instanceof ClassPathResource classPathResource) {
 			return classPathResource.getPath();
@@ -111,7 +134,9 @@ class ScanningClasspathEntry implements ClasspathEntry {
 	@Override
 	public void cleanup() {
 		try {
-			FileSystemUtils.deleteRecursively(this.classpath);
+			if (this.classpath != null) {
+				FileSystemUtils.deleteRecursively(this.classpath);
+			}
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
