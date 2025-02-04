@@ -47,6 +47,7 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.AndDependencyFilter;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 
@@ -128,13 +129,15 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 		Artifact artifact = new DefaultArtifact(this.coords);
 
-		DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME, JavaScopes.COMPILE);
+		DependencyFilter scopeFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME, JavaScopes.COMPILE);
+		DependencyFilter optionalFilter = (node, parents) -> !node.getDependency().isOptional();
+		DependencyFilter dependencyFilter = new AndDependencyFilter(scopeFilter, optionalFilter);
 
 		CollectRequest collectRequest = new CollectRequest();
 		collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
 		collectRequest.setRepositories(this.repositories);
 
-		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
+		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, dependencyFilter);
 
 		List<String> result = new ArrayList<>();
 		try {
