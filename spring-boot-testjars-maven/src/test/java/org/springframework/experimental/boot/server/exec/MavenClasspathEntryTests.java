@@ -54,7 +54,7 @@ class MavenClasspathEntryTests {
 				"org.springframework.boot:spring-boot-actuator-autoconfigure:3.4.1");
 		List<String> entries = classpath.resolve();
 		String runtimeDependency = "com/fasterxml/jackson/core/jackson-databind/2.18.2/jackson-databind-2.18.2.jar";
-		assertThat(entries).anyMatch(entry -> entry.contains(runtimeDependency));
+		assertThat(entries).anyMatch((entry) -> entry.contains(runtimeDependency));
 	}
 
 	@Test
@@ -62,7 +62,7 @@ class MavenClasspathEntryTests {
 		MavenClasspathEntry classpath = new MavenClasspathEntry("org.springframework.data:spring-data-commons:3.2.9");
 		List<String> entries = classpath.resolve();
 		String optionalDependency = "spring-expression";
-		assertThat(entries).noneMatch(entry -> entry.contains(optionalDependency));
+		assertThat(entries).noneMatch((entry) -> entry.contains(optionalDependency));
 	}
 
 	@Test
@@ -77,8 +77,8 @@ class MavenClasspathEntryTests {
 		String configServerPartialPath = "/org/springframework/cloud/spring-cloud-config-server/" + cloudVersion
 				+ "/spring-cloud-config-server-" + cloudVersion + ".jar";
 		String springCloudContextArtifactName = "spring-cloud-context";
-		assertThat(entries).anyMatch(entry -> entry.contains(configServerPartialPath))
-				.anyMatch(entry -> entry.contains(springCloudContextArtifactName));
+		assertThat(entries).anyMatch((entry) -> entry.contains(configServerPartialPath))
+				.anyMatch((entry) -> entry.contains(springCloudContextArtifactName));
 		// .withFailMessage("Unable to find spring-boot-starter with path that contains "
 		// + configServerPartialPath)
 	}

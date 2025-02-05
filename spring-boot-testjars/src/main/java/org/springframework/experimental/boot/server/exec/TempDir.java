@@ -37,8 +37,8 @@ final class TempDir {
 		try {
 			return Files.createTempDirectory("testjars-classpath-" + processId + "-");
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

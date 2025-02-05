@@ -110,7 +110,7 @@ public class CommonsExecWebServerFactoryBean
 	/**
 	 * If set, will start up in debug mode listening on the specified port.
 	 * @param debugPort the port to listen on or null (default) to disable debug mode.
-	 * @return
+	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
 	 */
 	public CommonsExecWebServerFactoryBean debugPort(Integer debugPort) {
 		this.debugPort = debugPort;
@@ -121,7 +121,7 @@ public class CommonsExecWebServerFactoryBean
 	 * If {@link #debugPort(Integer)} is set, then this determines if the server should be
 	 * suspended or not.
 	 * @param suspend true if should suspend, else false.
-	 * @return
+	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
 	 */
 	public CommonsExecWebServerFactoryBean suspend(boolean suspend) {
 		this.suspend = suspend;

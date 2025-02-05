@@ -77,8 +77,8 @@ class ScanningClasspathEntry implements ClasspathEntry {
 			this.resources = getResources();
 			this.classpath = createClasspath(this.resources);
 		}
-		return this.classpath == null ? Collections.emptyList()
-				: Arrays.asList(this.classpath.toFile().getAbsolutePath());
+		return (this.classpath != null) ? Arrays.asList(this.classpath.toFile().getAbsolutePath())
+				: Collections.emptyList();
 	}
 
 	private Path createClasspath(Resource[] resources) {
