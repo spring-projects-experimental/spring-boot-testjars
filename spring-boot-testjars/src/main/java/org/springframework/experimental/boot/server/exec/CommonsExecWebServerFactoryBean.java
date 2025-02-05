@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartFactoryBean;
+import org.springframework.experimental.boot.server.exec.imports.SpringBootApplicationMain;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -46,7 +47,7 @@ public class CommonsExecWebServerFactoryBean
 
 	private static Log logger = LogFactory.getLog(CommonsExecWebServerFactoryBean.class);
 
-	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = "org.springframework.experimental.boot.server.exec.main.SpringBootApplicationMain";
+	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = SpringBootApplicationMain.class.getName();
 
 	private String executable = currentJavaExecutable();
 

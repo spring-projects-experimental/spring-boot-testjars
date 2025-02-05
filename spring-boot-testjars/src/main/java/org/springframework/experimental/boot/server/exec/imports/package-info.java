@@ -19,4 +19,4 @@
  * provides a default class to run Spring Boot applications against. This is intentionally
  * left otherwise empty to avoid scanning classes unnecessarily.
  */
-package org.springframework.experimental.boot.server.exec.main;
+package org.springframework.experimental.boot.server.exec.imports;

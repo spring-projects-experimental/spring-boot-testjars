@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.experimental.boot.server.exec.main;
+package org.springframework.experimental.boot.server.exec.imports;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

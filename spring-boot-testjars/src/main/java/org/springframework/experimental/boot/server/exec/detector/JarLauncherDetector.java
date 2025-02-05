@@ -18,7 +18,7 @@ package org.springframework.experimental.boot.server.exec.detector;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.springframework.experimental.boot.server.exec.main.SpringBootApplicationMain;
+import org.springframework.experimental.boot.server.exec.imports.SpringBootApplicationMain;
 
 /**
  * Detect which JarLauncher main class to use, and call its {@code main(String[] args)}
