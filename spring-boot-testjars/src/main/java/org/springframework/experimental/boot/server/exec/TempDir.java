@@ -35,7 +35,7 @@ final class TempDir {
 	static Path tempDir() {
 		long processId = ProcessHandle.current().pid();
 		try {
-			return Files.createTempDirectory("testjars-classpath-" + processId);
+			return Files.createTempDirectory("testjars-classpath-" + processId + "-");
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
