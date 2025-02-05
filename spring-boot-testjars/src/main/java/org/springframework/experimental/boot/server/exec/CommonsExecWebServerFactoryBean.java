@@ -60,6 +60,10 @@ public class CommonsExecWebServerFactoryBean
 
 	private CommonsExecWebServer webServer;
 
+	private Integer debugPort;
+
+	private boolean suspend = true;
+
 	CommonsExecWebServerFactoryBean() {
 		Class<?> jarDetector = ClassUtils.resolveClassName(this.mainClass, null);
 		this.classpath.entries(new ResourceClasspathEntry(
@@ -103,6 +107,27 @@ public class CommonsExecWebServerFactoryBean
 		return this;
 	}
 
+	/**
+	 * If set, will start up in debug mode listening on the specified port.
+	 * @param debugPort the port to listen on or null (default) to disable debug mode.
+	 * @return
+	 */
+	public CommonsExecWebServerFactoryBean debugPort(Integer debugPort) {
+		this.debugPort = debugPort;
+		return this;
+	}
+
+	/**
+	 * If {@link #debugPort(Integer)} is set, then this determines if the server should be
+	 * suspended or not.
+	 * @param suspend true if should suspend, else false.
+	 * @return
+	 */
+	public CommonsExecWebServerFactoryBean suspend(boolean suspend) {
+		this.suspend = suspend;
+		return this;
+	}
+
 	@Override
 	public boolean isEagerInit() {
 		return true;
@@ -110,6 +135,11 @@ public class CommonsExecWebServerFactoryBean
 
 	private CommonsExecWebServer build() {
 		CommandLine commandLine = new CommandLine(this.executable);
+		if (this.debugPort != null) {
+			String s = (this.suspend) ? "y" : "n";
+			commandLine.addArgument(
+					"-agentlib:jdwp=transport=dt_socket,server=y,suspend=" + s + ",address=*:" + this.debugPort);
+		}
 		commandLine.addArguments(createSystemPropertyArgs(), false);
 		commandLine.addArgument("-classpath", false);
 		commandLine.addArgument(this.classpath.build(), false);
