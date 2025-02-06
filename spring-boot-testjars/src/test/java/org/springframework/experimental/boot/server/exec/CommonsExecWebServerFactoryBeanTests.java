@@ -158,6 +158,25 @@ class CommonsExecWebServerFactoryBeanTests {
 		});
 	}
 
+	@Test
+	void setAdditionalBeanClassNamesWhenSingleName() {
+		String envName = "testjars.additionalBeanClassNames";
+		String className = "org.springframework.cloud.config.server.config.ConfigServerConfiguration";
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder()
+				.setAdditionalBeanClassNames(className)
+				.systemProperties((props) -> assertThat(props).containsEntry(envName, className));
+	}
+
+	@Test
+	void setAdditionalBeanClassNamesWhenMultipleNames() {
+		String envName = "testjars.additionalBeanClassNames";
+		String[] classNames = { "org.springframework.cloud.config.server.config.ConfigServerConfiguration",
+				"other.ClassName" };
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder()
+				.setAdditionalBeanClassNames(classNames).systemProperties(
+						(props) -> assertThat(props).containsEntry(envName, classNames[0] + "," + classNames[1]));
+	}
+
 	private void assertClasspathContainsResourceWithContent(List<ClasspathEntry> classpath, String resourceName,
 			String expectedContent) {
 		ClasspathEntry lastEntry = classpath.get(classpath.size() - 1);

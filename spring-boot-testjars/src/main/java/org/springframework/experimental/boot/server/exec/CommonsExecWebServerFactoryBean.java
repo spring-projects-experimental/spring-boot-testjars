@@ -32,6 +32,7 @@ import org.springframework.beans.factory.SmartFactoryBean;
 import org.springframework.experimental.boot.server.exec.imports.SpringBootApplicationMain;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Creates a {@link CommonsExecWebServer}. If the resource
@@ -101,6 +102,17 @@ public class CommonsExecWebServerFactoryBean
 	public CommonsExecWebServerFactoryBean classpath(Consumer<ClasspathBuilder> configure) {
 		configure.accept(this.classpath);
 		return this;
+	}
+
+	/**
+	 * Sets additional class names that should be added to the
+	 * {@link org.springframework.context.ApplicationContext}.
+	 * @param additionalBeanClassNames the class names that should be added.
+	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
+	 */
+	public CommonsExecWebServerFactoryBean setAdditionalBeanClassNames(String... additionalBeanClassNames) {
+		return systemProperties((props) -> props.put("testjars.additionalBeanClassNames",
+				StringUtils.arrayToCommaDelimitedString(additionalBeanClassNames)));
 	}
 
 	public CommonsExecWebServerFactoryBean systemProperties(Consumer<Map<String, String>> systemProperties) {

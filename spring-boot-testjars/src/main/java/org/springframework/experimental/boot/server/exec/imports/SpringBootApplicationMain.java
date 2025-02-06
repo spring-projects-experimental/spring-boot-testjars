@@ -23,7 +23,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SpringBootApplicationMain {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootApplicationMain.class, args);
+		SpringApplication spring = new SpringApplication(SpringBootApplicationMain.class);
+		spring.addInitializers(new RegisterBeanDefinitionsInitializer());
+		spring.run(args);
 	}
 
 }

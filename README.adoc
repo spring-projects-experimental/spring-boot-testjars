@@ -141,6 +141,31 @@ static CommonsExecWebServerFactoryBean authorizationServer() {
 
 If present, `CommonsExecWebServerFactoryBean` will add the resources `webjars/$beanName/application.yml` or `webjars/$beanName/application.properties` exists, then it is automatically added to the classpath as `application.yml` and `application.properties` respectively.
 
+=== Adding Additional Classes to the ApplicationContext
+
+It can often be helpful to add additional classes to the `ApplicationContext`.
+Simply adding them to the classpath does not necessarily add the class to the `ApplicationContext`.
+For example, if someone wants to start a Config Server instance, the `ConfigServerConfiguration` must be imported:
+
+[source,java]
+----
+@Bean
+@DynamicPortUrl(name = "spring.cloud.config.uri")
+static CommonsExecWebServerFactoryBean configServer() {
+	// @formatter:off
+	return CommonsExecWebServerFactoryBean.builder()
+		.defaultSpringBootApplicationMain()
+		.setAdditionalBeanClassNames("org.springframework.cloud.config.server.config.ConfigServerConfiguration")
+		.classpath((classpath) -> classpath
+			.entries(springBootStarter("web"))
+			.entries(new MavenClasspathEntry("org.springframework.cloud:spring-cloud-config-server:4.2.0"))
+		);
+	// @formatter:on
+}
+----
+
+
+
 [[dynamicproperty]]
 == @DynamicProperty
 
