@@ -164,7 +164,30 @@ static CommonsExecWebServerFactoryBean configServer() {
 }
 ----
 
+=== Debugging
 
+If you need to start the application in debug mode, you can do so using the `DebugSettings`.
+
+[source,java]
+----
+@Bean
+@OAuth2ClientProviderIssuerUri
+static CommonsExecWebServerFactoryBean authorizationServer() {
+	// @formatter:off
+	return CommonsExecWebServerFactoryBean.builder()
+		// ...
+		.debug((settings) -> settings
+			.enabled(true)
+			// Optional properties with their explicit defaults shown below
+			.suspend(true)
+			.port(5005)
+		);
+	// @formatter:on
+}
+----
+
+When starting the remote debugger, it is important to remember that the classpath of the `CommonsExecWebServerFactoryBean` is independent of the project it runs in.
+This means, the classpath of the debugger will need to match the classpat of the `CommonsExecWebServerFactoryBean` rather than the project it exists in.
 
 [[dynamicproperty]]
 == @DynamicProperty

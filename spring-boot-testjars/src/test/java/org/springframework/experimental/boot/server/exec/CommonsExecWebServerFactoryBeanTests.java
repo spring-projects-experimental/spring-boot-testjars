@@ -177,6 +177,36 @@ class CommonsExecWebServerFactoryBeanTests {
 						(props) -> assertThat(props).containsEntry(envName, classNames[0] + "," + classNames[1]));
 	}
 
+	@Test
+	void debugWithDefaults() throws Exception {
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder()
+				.debug((debug) -> debug.enabled(true));
+		CommonsExecWebServer server = factory.getObject();
+		// IDEA's default debug port is 5005
+		assertThat(server.getCommandLine().getArguments())
+				.contains("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005");
+	}
+
+	@Test
+	void debugWithCustomPort() throws Exception {
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder()
+				.debug((debug) -> debug.enabled(true).port(1234));
+		CommonsExecWebServer server = factory.getObject();
+		// IDEA's default debug port is 5005
+		assertThat(server.getCommandLine().getArguments())
+				.contains("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:1234");
+	}
+
+	@Test
+	void debugWithSuspendFalse() throws Exception {
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder()
+				.debug((debug) -> debug.enabled(true).suspend(false));
+		CommonsExecWebServer server = factory.getObject();
+		// IDEA's default debug port is 5005
+		assertThat(server.getCommandLine().getArguments())
+				.contains("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005");
+	}
+
 	private void assertClasspathContainsResourceWithContent(List<ClasspathEntry> classpath, String resourceName,
 			String expectedContent) {
 		ClasspathEntry lastEntry = classpath.get(classpath.size() - 1);

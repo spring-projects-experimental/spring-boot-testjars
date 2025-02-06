@@ -62,9 +62,7 @@ public class CommonsExecWebServerFactoryBean
 
 	private CommonsExecWebServer webServer;
 
-	private Integer debugPort;
-
-	private boolean suspend = true;
+	private final DebugSettings debugSettings = new DebugSettings();
 
 	CommonsExecWebServerFactoryBean() {
 		Class<?> jarDetector = ClassUtils.resolveClassName(this.mainClass, null);
@@ -121,23 +119,12 @@ public class CommonsExecWebServerFactoryBean
 	}
 
 	/**
-	 * If set, will start up in debug mode listening on the specified port.
-	 * @param debugPort the port to listen on or null (default) to disable debug mode.
+	 * If set, will start up in debug mode using the provided settings.
+	 * @param debugSettings the settings to use.
 	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
 	 */
-	public CommonsExecWebServerFactoryBean debugPort(Integer debugPort) {
-		this.debugPort = debugPort;
-		return this;
-	}
-
-	/**
-	 * If {@link #debugPort(Integer)} is set, then this determines if the server should be
-	 * suspended or not.
-	 * @param suspend true if should suspend, else false.
-	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
-	 */
-	public CommonsExecWebServerFactoryBean suspend(boolean suspend) {
-		this.suspend = suspend;
+	public CommonsExecWebServerFactoryBean debug(Consumer<DebugSettings> debugSettings) {
+		debugSettings.accept(this.debugSettings);
 		return this;
 	}
 
@@ -148,10 +135,10 @@ public class CommonsExecWebServerFactoryBean
 
 	private CommonsExecWebServer build() {
 		CommandLine commandLine = new CommandLine(this.executable);
-		if (this.debugPort != null) {
-			String s = (this.suspend) ? "y" : "n";
-			commandLine.addArgument(
-					"-agentlib:jdwp=transport=dt_socket,server=y,suspend=" + s + ",address=*:" + this.debugPort);
+		if (this.debugSettings.enabled) {
+			String s = (this.debugSettings.suspend) ? "y" : "n";
+			commandLine.addArgument("-agentlib:jdwp=transport=dt_socket,server=y,suspend=" + s + ",address=*:"
+					+ this.debugSettings.port);
 		}
 		commandLine.addArguments(createSystemPropertyArgs(), false);
 		commandLine.addArgument("-classpath", false);
@@ -219,6 +206,51 @@ public class CommonsExecWebServerFactoryBean
 		if (this.webServer != null) {
 			this.webServer.destroy();
 		}
+	}
+
+	/**
+	 * The settings for debugging.
+	 *
+	 * @author Rob Winch
+	 */
+	public static class DebugSettings {
+
+		private boolean enabled;
+
+		private int port = 5005;
+
+		private boolean suspend = true;
+
+		/**
+		 * Sets if debug is enabled.
+		 * @param enabled if debug is enabled or not (default is false).
+		 * @return the {@link DebugSettings} for additional customization.
+		 */
+		public DebugSettings enabled(boolean enabled) {
+			this.enabled = enabled;
+			return this;
+		}
+
+		/**
+		 * Sets the port to be used for debugging.
+		 * @param port the port to be used (default 5005)
+		 * @return the {@link DebugSettings} for additional customization.
+		 */
+		public DebugSettings port(int port) {
+			this.port = port;
+			return this;
+		}
+
+		/**
+		 * Sets if the debugger should suspend on startup.
+		 * @param suspend sets if should suspend on startup (default true)
+		 * @return the {@link DebugSettings} for additional customization.
+		 */
+		public DebugSettings suspend(boolean suspend) {
+			this.suspend = suspend;
+			return this;
+		}
+
 	}
 
 }
