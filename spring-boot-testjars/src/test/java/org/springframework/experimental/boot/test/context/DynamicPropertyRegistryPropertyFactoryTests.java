@@ -98,6 +98,24 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234/messages");
 	}
 
+	@Test
+	void cloudConfigUriWhenDefault() throws Exception {
+		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("cloudConfigUriWithDefault");
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
+		assertThat(registryProperty.name()).isEqualTo("spring.cloud.config.uri");
+		assertThat(registryProperty.value().get()).isEqualTo("http://localhost:1234");
+	}
+
+	@Test
+	void cloudConfigUriWhenOverride() throws Exception {
+		MergedAnnotation<DynamicProperty> dynamicProperty = dynamicPropertyFrom("cloudConfigUriWithOverride");
+		DynamicPropertyRegistryProperty registryProperty = this.propertyFactory.createRegistryProperty(dynamicProperty,
+				() -> new WebServer());
+		assertThat(registryProperty.name()).isEqualTo("spring.cloud.config.uri");
+		assertThat(registryProperty.value().get()).isEqualTo("http://127.0.0.1:1234/config");
+	}
+
 	private MergedAnnotation<DynamicProperty> dynamicPropertyFrom(String methodName) throws NoSuchMethodException {
 		MergedAnnotations mergedAnnotations = MergedAnnotations.from(getClass().getDeclaredMethod(methodName));
 		return mergedAnnotations.get(DynamicProperty.class);
@@ -134,6 +152,14 @@ class DynamicPropertyRegistryPropertyFactoryTests {
 
 	@DynamicPortUrl(name = "message.url", host = "127.0.0.1", contextRoot = "/messages")
 	static void dynamicPortUrlWithOverride() {
+	}
+
+	@CloudConfigUri
+	static void cloudConfigUriWithDefault() {
+	}
+
+	@CloudConfigUri(host = "127.0.0.1", contextRoot = "/config")
+	static void cloudConfigUriWithOverride() {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)

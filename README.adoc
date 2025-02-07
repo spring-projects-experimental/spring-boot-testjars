@@ -267,6 +267,16 @@ The value is calculated as `http://{host}:{port}{contextRoot}`.
 * port - a valid SpEL expression that determines the port to use for the URL (default port)
 * contextRoot - the context root to use (default is empty String)
 
+==== @CloudConfigUri
+
+This simplifies mapping the to the property `spring.cloud.config.uri`.
+The value is calculated as `http://{host}:{port}{contextRoot}` such that:
+
+* host - the host to use (default is `localhost`)
+* port - a valid SpEL expression that determines the port to use for the URL (default port)
+* contextRoot - the context root to use (default is empty String)
+
+
 ==== @OAuth2ClientProviderIssuerUri
 
 This provides a mapping to issuer-uri of https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.oauth2.client.provider[the OAuth provider details].
