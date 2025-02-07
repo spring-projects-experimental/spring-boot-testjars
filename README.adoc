@@ -189,6 +189,23 @@ static CommonsExecWebServerFactoryBean authorizationServer() {
 When starting the remote debugger, it is important to remember that the classpath of the `CommonsExecWebServerFactoryBean` is independent of the project it runs in.
 This means, the classpath of the debugger will need to match the classpat of the `CommonsExecWebServerFactoryBean` rather than the project it exists in.
 
+=== Server Port
+
+By default `CommonsExecWebServerFactoryBean` starts the application on a random port by specifying the system property `server.port=0`.
+If you need to disable this behavior, you can opt out using the `useRandomPort` property as shown below:
+[source,java]
+----
+@Bean
+@OAuth2ClientProviderIssuerUri
+static CommonsExecWebServerFactoryBean authorizationServer() {
+	// @formatter:off
+	return CommonsExecWebServerFactoryBean.builder()
+		// ...
+		.useRandomPort(false);
+	// @formatter:on
+}
+----
+
 [[dynamicproperty]]
 == @DynamicProperty
 

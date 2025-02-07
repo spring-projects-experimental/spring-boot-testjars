@@ -105,12 +105,9 @@ class CommonsExecWebServerFactoryBeanTests {
 	}
 
 	@Test
-	void serverPortWhenSpecifiedThenNotOverridden() throws Exception {
-		String expectedPort = "1234";
-		String portSystemProperty = "server.port";
-		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder()
-				.systemProperties((props) -> props.put(portSystemProperty, expectedPort)).getObject();
-		assertThat(server.getCommandLine().getArguments()).contains("-D" + portSystemProperty + "=" + expectedPort);
+	void useRandomPortWhenFalseThenServerPortNot0() throws Exception {
+		CommonsExecWebServer server = CommonsExecWebServerFactoryBean.builder().useRandomPort(false).getObject();
+		assertThat(server.getCommandLine().getArguments()).doesNotContain("-Dserver.port=0");
 	}
 
 	// gh-53

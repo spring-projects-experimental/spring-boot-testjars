@@ -64,6 +64,8 @@ public class CommonsExecWebServerFactoryBean
 
 	private final DebugSettings debugSettings = new DebugSettings();
 
+	private boolean useRandomPort = true;
+
 	CommonsExecWebServerFactoryBean() {
 		Class<?> jarDetector = ClassUtils.resolveClassName(this.mainClass, null);
 		this.classpath.entries(new ResourceClasspathEntry(
@@ -113,6 +115,18 @@ public class CommonsExecWebServerFactoryBean
 				StringUtils.arrayToCommaDelimitedString(additionalBeanClassNames)));
 	}
 
+	/**
+	 * Sets if the Spring Boot application should be started on a random port. If true,
+	 * specifies the system property server.port=0 to start on a random port, else starts
+	 * on the port following standard Spring Boot rules.
+	 * @param useRandomPort true (default) if should start on random port, else false.
+	 * @return the {@link CommonsExecWebServerFactoryBean} for customization.
+	 */
+	public CommonsExecWebServerFactoryBean useRandomPort(boolean useRandomPort) {
+		this.useRandomPort = useRandomPort;
+		return this;
+	}
+
 	public CommonsExecWebServerFactoryBean systemProperties(Consumer<Map<String, String>> systemProperties) {
 		systemProperties.accept(this.systemProperties);
 		return this;
@@ -150,7 +164,7 @@ public class CommonsExecWebServerFactoryBean
 	private String[] createSystemPropertyArgs() {
 		Map<String, String> systemPropertyArgs = new HashMap<>(this.systemProperties);
 		systemPropertyArgs.put("PORTFILE", this.applicationPortFile.getAbsolutePath());
-		if (!systemPropertyArgs.containsKey("server.port")) {
+		if (this.useRandomPort) {
 			systemPropertyArgs.put("server.port", "0");
 		}
 		return systemPropertyArgs.entrySet().stream().map((e) -> "-D" + e.getKey() + "=" + e.getValue() + "")
