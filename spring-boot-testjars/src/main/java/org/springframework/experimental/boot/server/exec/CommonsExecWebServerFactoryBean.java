@@ -182,25 +182,6 @@ public class CommonsExecWebServerFactoryBean
 		this.classpath.entries(new ScanningClasspathEntry(basePath));
 	}
 
-	private void defaultApplicationConfiguration(String beanName, String extension) {
-		String existingResourceName = "testjars/" + beanName + "/application." + extension;
-		String classpathResourceName = "application." + extension;
-		ResourceClasspathEntry defaultApplicationConfig = new ResourceClasspathEntry(existingResourceName,
-				classpathResourceName);
-		if (defaultApplicationConfig.exists()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Adding default resource " + existingResourceName + " as " + classpathResourceName);
-			}
-			classpath((cp) -> cp.entries(defaultApplicationConfig));
-		}
-		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("The default resource was not found " + existingResourceName
-						+ " and will not be added to the classpath as " + classpathResourceName);
-			}
-		}
-	}
-
 	@Override
 	public void destroy() throws Exception {
 		if (this.webServer != null) {
