@@ -137,9 +137,11 @@ static CommonsExecWebServerFactoryBean authorizationServer() {
 }
 ----
 
-=== Default application.yml / application.properties
+=== Default Resources
 
-If present, `CommonsExecWebServerFactoryBean` will add the resources `webjars/$beanName/application.yml` or `webjars/$beanName/application.properties` exists, then it is automatically added to the classpath as `application.yml` and `application.properties` respectively.
+If present, `CommonsExecWebServerFactoryBean` will add the resources `testjars/$beanName/**`, then it is automatically added to the classpath as resources renamed without the path of `testjars/$beanName`.
+For example, if the bean name is `authorizationServer`, then the resource `testjars/authorizationServer/application.yml` will automatically be added to the classpath as `application.yml`.
+Furthermore, a resource named `testjars/authorizationServer/foo/bar.txt` will automatically be added to the classpath as `foo/bar.txt`.
 
 === Adding Additional Classes to the ApplicationContext
 
