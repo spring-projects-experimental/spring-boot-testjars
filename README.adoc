@@ -1,5 +1,5 @@
 = spring-boot-testjars
-:TESTJARS_VERSION: 0.0.2
+:TESTJARS_VERSION: 0.0.3
 
 https://docs.spring.io/spring-boot/docs/3.2.1/reference/html/features.html#features.testcontainers[Spring Boot + Testcontainers support] for Spring Boot applications, but without the need for a Docker container.
 
