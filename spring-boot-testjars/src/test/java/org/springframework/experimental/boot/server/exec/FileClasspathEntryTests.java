@@ -17,27 +17,19 @@
 package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
-public class FileClasspathEntry implements ClasspathEntry {
+import org.junit.jupiter.api.Test;
 
-	private final File file;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
-	public FileClasspathEntry(String file) {
-		this(new File(file));
-	}
+class FileClasspathEntryTests {
 
-	public FileClasspathEntry(File file) {
-		this.file = file;
-	}
-
-	public List<String> resolve() {
-		String absolutePath = this.file.getAbsolutePath();
-		if (!this.file.exists()) {
-			throw new IllegalStateException("Could not find file to add to the classpath '" + absolutePath + "'");
-		}
-		return Arrays.asList(absolutePath);
+	@Test
+	void resolveWhenDoesNotExist() {
+		File doesNotExist = new File("does-not-exist");
+		FileClasspathEntry notFoundEntry = new FileClasspathEntry(doesNotExist);
+		assertThatIllegalStateException().isThrownBy(notFoundEntry::resolve)
+				.withMessageContaining("Could not find file to add to the classpath");
 	}
 
 }
