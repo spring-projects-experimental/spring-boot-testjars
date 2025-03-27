@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartFactoryBean;
-import org.springframework.experimental.boot.server.exec.imports.SpringBootApplicationMain;
+import org.springframework.experimental.boot.server.exec.imports.GenericSpringBootApplicationMain;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -48,7 +48,7 @@ public class CommonsExecWebServerFactoryBean
 
 	private static Log logger = LogFactory.getLog(CommonsExecWebServerFactoryBean.class);
 
-	private static final String DEFAULT_SPRING_BOOT_MAIN_CLASSNAME = SpringBootApplicationMain.class.getName();
+	private static final String GENERIC_SPRING_BOOT_MAIN_CLASSNAME = GenericSpringBootApplicationMain.class.getName();
 
 	private String executable = currentJavaExecutable();
 
@@ -87,9 +87,9 @@ public class CommonsExecWebServerFactoryBean
 		}
 	}
 
-	public CommonsExecWebServerFactoryBean defaultSpringBootApplicationMain() {
-		mainClass(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME);
-		Class<?> mainClass = ClassUtils.resolveClassName(DEFAULT_SPRING_BOOT_MAIN_CLASSNAME, null);
+	public CommonsExecWebServerFactoryBean useGenericSpringBootMain() {
+		mainClass(GENERIC_SPRING_BOOT_MAIN_CLASSNAME);
+		Class<?> mainClass = ClassUtils.resolveClassName(GENERIC_SPRING_BOOT_MAIN_CLASSNAME, null);
 		return classpath((classpath) -> classpath.scan(mainClass));
 	}
 

@@ -19,11 +19,18 @@ package org.springframework.experimental.boot.server.exec.imports;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Convenience main method that can be leveraged by adhoc applications that do not have a
+ * main method.
+ *
+ * @author Rob Winch
+ * @see org.springframework.experimental.boot.server.exec.CommonsExecWebServerFactoryBean#useGenericSpringBootMain()
+ */
 @SpringBootApplication
-public class SpringBootApplicationMain {
+public class GenericSpringBootApplicationMain {
 
 	public static void main(String[] args) {
-		SpringApplication spring = new SpringApplication(SpringBootApplicationMain.class);
+		SpringApplication spring = new SpringApplication(GenericSpringBootApplicationMain.class);
 		spring.addInitializers(new RegisterBeanDefinitionsInitializer());
 		spring.run(args);
 	}

@@ -118,10 +118,10 @@ repositories.add(new RemoteRepository.Builder("spring-milestone", "default", "ht
 MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.1.0-RC1", repositories);
 ----
 
-=== Default Java Main
+=== GenericSpringBootApplicationMain
 
-In some cases you need to provide a Java main class without any additional configuration.
-If that is the case, you can do it with the following:
+For adhoc applications, you may not have a main class and you may not want to provide boilerplate main method yourself.
+If that is the case, you can leverage `useGenericSpringBootMain`:
 
 [source,java]
 ----
@@ -131,8 +131,8 @@ static CommonsExecWebServerFactoryBean authorizationServer() {
 	// @formatter:off
 	return CommonsExecWebServerFactoryBean.builder()
 		// ...
-		// Add a class annotated with SpringBootApplication and a main method to the classpath and use it as the main class
-		.defaultSpringBootApplicationMain();
+		// Add a generic class annotated with SpringBootApplication and a main method to the classpath and use it as the main class
+		.useGenericSpringBootMain();
 	// @formatter:on
 }
 ----
@@ -156,7 +156,7 @@ For example, if someone wants to start a Config Server instance, the `ConfigServ
 static CommonsExecWebServerFactoryBean configServer() {
 	// @formatter:off
 	return CommonsExecWebServerFactoryBean.builder()
-		.defaultSpringBootApplicationMain()
+		.useGenericSpringBootMain()
 		.setAdditionalBeanClassNames("org.springframework.cloud.config.server.config.ConfigServerConfiguration")
 		.classpath((classpath) -> classpath
 			.entries(springBootStarter("web"))

@@ -52,7 +52,7 @@ class MavenClasspathTests {
 		static CommonsExecWebServerFactoryBean authorizationServer() {
 			// @formatter:off
 			return CommonsExecWebServerFactoryBean.builder()
-					.defaultSpringBootApplicationMain()
+					.useGenericSpringBootMain()
 					.classpath((classpath) -> classpath
 						.entries(springBootStarter("oauth2-authorization-server"))
 					);

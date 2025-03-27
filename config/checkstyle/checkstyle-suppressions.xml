@@ -5,6 +5,6 @@
 <suppressions>
     <!-- Ignore third-party code -->
     <suppress files="LoggingMavenRepositoryListener\.java|LoggingMavenTransferListener\.java" checks=".*"/>
-    <suppress files="SpringBootApplicationMain\.java" checks=".*"/>
+    <suppress files="GenericSpringBootApplicationMain\.java" checks=".*"/>
     <suppress files="SpringBootFatJarMain\.java" checks=".*"/>
 </suppressions>
