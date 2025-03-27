@@ -107,15 +107,19 @@ testImplementation 'org.springframework.experimental.boot:spring-boot-testjars-m
 
 ==== Custom Maven Repositories
 
-By default, only Maven Central is searched.
+By default, the following repositories are added:
+- Maven Central
+- If it is a SNAPSHOT dependency with a group id that starts with `org.springframework`, then Spring's milestone and snapshot repositories are added
+- If it is a milestone or release candidate dependency with a group id that starts with `org.springframework`, then Spring's milestone repository is added
+
 You can customize the repositories that are searched by injecting the repositories like the example below:
 
 [source,java]
 ----
 List<RemoteRepository> repositories = new ArrayList<>();
 repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
-repositories.add(new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/").build());
-MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.1.0-RC1", repositories);
+repositories.add(new RemoteRepository.Builder("sonatype-snapshot", "default", "https://oss.sonatype.org/content/repositories/snapshots/").build());
+MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.junit:junit5-api:5.0.0-SNAPSHOT", repositories);
 ----
 
 === GenericSpringBootApplicationMain

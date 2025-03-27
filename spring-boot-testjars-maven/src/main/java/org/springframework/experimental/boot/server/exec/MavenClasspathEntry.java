@@ -18,7 +18,6 @@ package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,7 +76,7 @@ public class MavenClasspathEntry implements ClasspathEntry {
 	 * SpringBootVersion.getVersion()).
 	 */
 	public MavenClasspathEntry(String coords) {
-		this(coords, newRepositories());
+		this(coords, newRepositories(coords));
 	}
 
 	/**
@@ -200,12 +199,32 @@ public class MavenClasspathEntry implements ClasspathEntry {
 		return session;
 	}
 
-	private static List<RemoteRepository> newRepositories() {
-		return new ArrayList<>(Collections.singletonList(newCentralRepository()));
+	private static List<RemoteRepository> newRepositories(String coords) {
+		List<RemoteRepository> result = new ArrayList<>();
+		result.add(newCentralRepository());
+		if (coords.startsWith("org.springframework")) {
+			if (coords.endsWith("-SNAPSHOT")) {
+				result.add(newSpringSnapshotRepository());
+				// SNAPSHOT dependencies may contain milestones
+				result.add(newSpringMilestoneRepository());
+			}
+			else if (coords.contains("-")) {
+				result.add(newSpringMilestoneRepository());
+			}
+		}
+		return result;
 	}
 
 	private static RemoteRepository newCentralRepository() {
 		return new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build();
+	}
+
+	private static RemoteRepository newSpringSnapshotRepository() {
+		return new RemoteRepository.Builder("spring-snapshot", "default", "https://repo.spring.io/snapshot/").build();
+	}
+
+	private static RemoteRepository newSpringMilestoneRepository() {
+		return new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/").build();
 	}
 
 }
