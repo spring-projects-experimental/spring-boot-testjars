@@ -20,12 +20,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import org.springframework.experimental.boot.server.exec.imports.SpringBootApplicationMain;
+import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
-class JarLauncherDetectorTests {
+class SpringBootFatJarMainTests {
 
 	@BeforeEach
 	void setUp() {
@@ -34,14 +36,15 @@ class JarLauncherDetectorTests {
 
 	@Test
 	void whenJarLauncherInLoaderLaunchPackage() {
-		try (var mocked = Mockito.mockStatic(JarLauncherDetector.class)) {
-			mocked.when(() -> JarLauncherDetector.main(any())).thenCallRealMethod();
-			mocked.when(() -> JarLauncherDetector.loadClass(any())).thenThrow(new ClassNotFoundException());
-			mocked.when(() -> JarLauncherDetector.loadClass("org.springframework.boot.loader.launch.JarLauncher"))
+		try (var mocked = Mockito.mockStatic(ClassUtils.class)) {
+			mocked.when(
+					() -> ClassUtils.forName(eq(SpringBootFatJarMain.SPRING_BOOT_32_PLUS_LAUNCHER_CLASSNAME), any()))
+					.thenThrow(new ClassNotFoundException());
+			mocked.when(() -> ClassUtils.forName(eq(SpringBootFatJarMain.SPRING_BOOT_PRE_32_LAUNCHER_CLASSNAME), any()))
 					.thenReturn(MockJarLauncher.class);
 
 			var args = new String[] { "one", "two" };
-			JarLauncherDetector.main(args);
+			SpringBootFatJarMain.main(args);
 
 			assertThat(MockJarLauncher.callCount).isEqualTo(1);
 			assertThat(MockJarLauncher.callArgs).isSameAs(args);
@@ -50,14 +53,15 @@ class JarLauncherDetectorTests {
 
 	@Test
 	void whenJarLauncherInLoaderPackage() {
-		try (var mocked = Mockito.mockStatic(JarLauncherDetector.class)) {
-			mocked.when(() -> JarLauncherDetector.main(any())).thenCallRealMethod();
-			mocked.when(() -> JarLauncherDetector.loadClass(any())).thenThrow(new ClassNotFoundException());
-			mocked.when(() -> JarLauncherDetector.loadClass("org.springframework.boot.loader.JarLauncher"))
+		try (var mocked = Mockito.mockStatic(ClassUtils.class)) {
+			mocked.when(
+					() -> ClassUtils.forName(eq(SpringBootFatJarMain.SPRING_BOOT_32_PLUS_LAUNCHER_CLASSNAME), any()))
+					.thenThrow(new ClassNotFoundException());
+			mocked.when(() -> ClassUtils.forName(eq(SpringBootFatJarMain.SPRING_BOOT_PRE_32_LAUNCHER_CLASSNAME), any()))
 					.thenReturn(MockJarLauncher.class);
 
 			var args = new String[] { "one", "two" };
-			JarLauncherDetector.main(args);
+			SpringBootFatJarMain.main(args);
 
 			assertThat(MockJarLauncher.callCount).isEqualTo(1);
 			assertThat(MockJarLauncher.callArgs).isSameAs(args);
@@ -66,15 +70,13 @@ class JarLauncherDetectorTests {
 
 	@Test
 	void whenJarLauncherMissing() {
-		try (var mocked = Mockito.mockStatic(JarLauncherDetector.class);
-				var mockedSpringBootMain = Mockito.mockStatic(SpringBootApplicationMain.class)) {
-			mocked.when(() -> JarLauncherDetector.main(any())).thenCallRealMethod();
-			mocked.when(() -> JarLauncherDetector.loadClass(any())).thenThrow(new ClassNotFoundException());
+		try (var mocked = Mockito.mockStatic(ClassUtils.class)) {
+			mocked.when(() -> ClassUtils.forName(any(), any())).thenThrow(new ClassNotFoundException());
 
 			final var callArgs = new String[] { "one", "two" };
-			JarLauncherDetector.main(callArgs);
-
-			mockedSpringBootMain.verify(() -> SpringBootApplicationMain.main(callArgs));
+			assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> SpringBootFatJarMain.main(callArgs))
+					.withMessageContaining(
+							"The application could not be launched as a Spring Boot fat jar using the classpath ");
 		}
 	}
 

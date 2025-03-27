@@ -85,7 +85,7 @@ class CommonsExecWebServerFactoryBeanTests {
 		CommonsExecWebServer webServer = CommonsExecWebServerFactoryBean.builder().getObject();
 		String[] args = webServer.getCommandLine().getArguments();
 		assertThat(args[args.length - 1])
-				.isEqualTo("org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector");
+				.isEqualTo("org.springframework.experimental.boot.server.exec.detector.SpringBootFatJarMain");
 	}
 
 	@Test

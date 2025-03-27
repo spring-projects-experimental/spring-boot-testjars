@@ -56,7 +56,7 @@ public class CommonsExecWebServerFactoryBean
 
 	private Map<String, String> systemProperties = new HashMap<>();
 
-	private String mainClass = "org.springframework.experimental.boot.server.exec.detector.JarLauncherDetector";
+	private String mainClass = "org.springframework.experimental.boot.server.exec.detector.SpringBootFatJarMain";
 
 	private File applicationPortFile = createApplicationPortFile();
 
