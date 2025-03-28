@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -152,6 +153,19 @@ class CommonsExecWebServerFactoryBeanTests {
 		factory.classpath((cp) -> {
 			List<ClasspathEntry> classpath = cp.getClasspath();
 			assertClasspathContainsResourceWithContent(classpath, "application.yaml", expectedContent);
+		});
+	}
+
+	// gh-76
+	@Test
+	void classpathWhenJavaDefaults() throws Exception {
+		CommonsExecWebServerFactoryBean factory = CommonsExecWebServerFactoryBean.builder();
+		factory.setBeanName("javaDefaults");
+		factory.classpath((cp) -> {
+			List<ClasspathEntry> classpath = cp.getClasspath();
+			Optional<String> javaDefaultsEntry = classpath.stream().map(ClasspathEntry::resolve).flatMap(List::stream)
+					.filter((path) -> new File(path, "testjars/javaDefaults/Main.class").exists()).findFirst();
+			assertThat(javaDefaultsEntry.isPresent()).isTrue();
 		});
 	}
 

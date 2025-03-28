@@ -57,7 +57,10 @@ class ScanningClasspathEntry implements ClasspathEntry {
 		this.renameResource = (name) -> {
 			String prefix = baseDir + "/";
 			int index = name.lastIndexOf(prefix);
-			return (index > -1) ? name.substring(index + prefix.length()) : name;
+			// .class files stay in the same package (otherwise invalid), but resources
+			// are relative to baseDir
+			int length = (name.endsWith(".class") ? 0 : prefix.length());
+			return (index > -1) ? name.substring(index + length) : name;
 		};
 	}
 
