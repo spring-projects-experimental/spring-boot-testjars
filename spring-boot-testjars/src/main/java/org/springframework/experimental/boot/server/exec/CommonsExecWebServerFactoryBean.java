@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartFactoryBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.experimental.boot.server.exec.imports.GenericSpringBootApplicationMain;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -44,7 +45,7 @@ import org.springframework.util.StringUtils;
  * @author Daniel Garnier-Moiroux
  */
 public class CommonsExecWebServerFactoryBean
-		implements SmartFactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware {
+		implements SmartFactoryBean<CommonsExecWebServer>, DisposableBean, BeanNameAware, SmartInitializingSingleton {
 
 	private static Log logger = LogFactory.getLog(CommonsExecWebServerFactoryBean.class);
 
@@ -200,6 +201,18 @@ public class CommonsExecWebServerFactoryBean
 	public void destroy() throws Exception {
 		if (this.webServer != null) {
 			this.webServer.destroy();
+		}
+	}
+
+	/**
+	 * The server is asynchronous to make ApplicationContext startup faster, but we want
+	 * to ensure that the web server starts before the ApplicationContext startup
+	 * completes.
+	 */
+	@Override
+	public void afterSingletonsInstantiated() {
+		if (this.webServer != null) {
+			this.webServer.getPort();
 		}
 	}
 
