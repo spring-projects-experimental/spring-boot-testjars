@@ -18,6 +18,7 @@ package org.springframework.experimental.boot.server.exec;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,8 +38,11 @@ import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactDescriptorPolicy;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
@@ -69,14 +73,28 @@ public class MavenClasspathEntry implements ClasspathEntry {
 	 */
 	public final String coords;
 
+	private final boolean excludeTransitives;
+
 	/**
-	 * Creates a new instance.
+	 * Creates a new instance with the default maven repositories and excludeTransitives
+	 * set to false.
 	 * @param coords the maven coordinates (e.g.
 	 * "org.springframework.boot:spring-boot-starter-web:" +
 	 * SpringBootVersion.getVersion()).
 	 */
 	public MavenClasspathEntry(String coords) {
 		this(coords, newRepositories(coords));
+	}
+
+	/**
+	 * Creates a new instance.
+	 * @param coords the maven coordinates (e.g.
+	 * "org.springframework.boot:spring-boot-starter-web:" +
+	 * SpringBootVersion.getVersion()).
+	 * @param excludeTransitives if transitives should be excluded or not.
+	 */
+	public MavenClasspathEntry(String coords, boolean excludeTransitives) {
+		this(coords, newRepositories(coords), excludeTransitives);
 	}
 
 	/**
@@ -95,8 +113,29 @@ public class MavenClasspathEntry implements ClasspathEntry {
 	 * use.
 	 */
 	public MavenClasspathEntry(String coords, List<RemoteRepository> repositories) {
+		this(coords, repositories, false);
+	}
+
+	/**
+	 * Creates a new instance.
+	 *
+	 * <code>
+	 *     List$lt;RemoteRepository&gt; repositories = new ArrayList&lt;&gt;();
+	 *     repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
+	 *     repositories.add(new RemoteRepository.Builder("spring-milestone", "default", "https://repo.spring.io/milestone/").build());
+	 *     MavenClasspathEntry entry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-RC1", repositories, excludeTransitives);
+	 * </code>
+	 * @param coords the maven coordinates (e.g. *
+	 * "org.springframework.boot:spring-boot-starter-web:" + *
+	 * SpringBootVersion.getVersion()).
+	 * @param repositories a {@link List} of the {@link RemoteRepository} instances to
+	 * @param excludeTransitives if transitive dependencies should be excluded or not.
+	 * use.
+	 */
+	public MavenClasspathEntry(String coords, List<RemoteRepository> repositories, boolean excludeTransitives) {
 		this.coords = coords;
 		this.repositories = repositories;
+		this.excludeTransitives = excludeTransitives;
 	}
 
 	/**
@@ -124,22 +163,9 @@ public class MavenClasspathEntry implements ClasspathEntry {
 
 		RepositorySystemSession session = newRepositorySystemSession(system);
 
-		Artifact artifact = new DefaultArtifact(this.coords);
-
-		DependencyFilter scopeFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME, JavaScopes.COMPILE);
-		DependencyFilter optionalFilter = (node, parents) -> !node.getDependency().isOptional();
-		DependencyFilter dependencyFilter = new AndDependencyFilter(scopeFilter, optionalFilter);
-
-		CollectRequest collectRequest = new CollectRequest();
-		collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
-		collectRequest.setRepositories(this.repositories);
-
-		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, dependencyFilter);
-
 		List<String> result = new ArrayList<>();
 		try {
-			List<ArtifactResult> artifactResults = system.resolveDependencies(session, dependencyRequest)
-					.getArtifactResults();
+			List<ArtifactResult> artifactResults = resolve(system, session);
 
 			for (ArtifactResult artifactResult : artifactResults) {
 				result.add(artifactResult.getArtifact().getFile().getAbsolutePath());
@@ -151,6 +177,33 @@ public class MavenClasspathEntry implements ClasspathEntry {
 			throw new RuntimeException(message, ex);
 		}
 		return result;
+	}
+
+	private List<ArtifactResult> resolve(RepositorySystem system, RepositorySystemSession session)
+			throws DependencyResolutionException, ArtifactResolutionException {
+		if (this.excludeTransitives) {
+			ArtifactRequest artifactRequest = new ArtifactRequest();
+			artifactRequest.setArtifact(new DefaultArtifact(this.coords));
+			artifactRequest.setRepositories(this.repositories);
+			return Arrays.asList(system.resolveArtifact(session, artifactRequest));
+		}
+		DependencyRequest dependencyRequest = createDependencyRequest();
+		return system.resolveDependencies(session, dependencyRequest).getArtifactResults();
+	}
+
+	private DependencyRequest createDependencyRequest() {
+		Artifact artifact = new DefaultArtifact(this.coords);
+
+		DependencyFilter scopeFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME, JavaScopes.COMPILE);
+		DependencyFilter optionalFilter = (node, parents) -> !node.getDependency().isOptional();
+		DependencyFilter dependencyFilter = new AndDependencyFilter(scopeFilter, optionalFilter);
+
+		CollectRequest collectRequest = new CollectRequest();
+		collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
+		collectRequest.setRepositories(this.repositories);
+
+		DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, dependencyFilter);
+		return dependencyRequest;
 	}
 
 	private static RepositorySystem newRepositorySystem() {

@@ -122,6 +122,20 @@ repositories.add(new RemoteRepository.Builder("sonatype-snapshot", "default", "h
 MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.junit:junit5-api:5.0.0-SNAPSHOT", repositories);
 ----
 
+==== Exclude Transitive Dependencies
+
+If you are resolving a Spring Boot (fat jar), then you do not need to resolve transitive dependencies.
+To disable downloading transitive dependencies, you can pass in `true` for the `excludeTransitives` constructor argument.
+For example:
+
+[source,java]
+----
+boolean excludeTransitives = true;
+List<RemoteRepository> repositories = new ArrayList<>();
+repositories.add(new RemoteRepository.Builder("example", "default", "https://example.org/maven2/").build());
+MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.example:message-service:1.0.0", repositories, excludeTransitives);
+----
+
 === GenericSpringBootApplicationMain
 
 For adhoc applications, you may not have a main class and you may not want to provide boilerplate main method yourself.

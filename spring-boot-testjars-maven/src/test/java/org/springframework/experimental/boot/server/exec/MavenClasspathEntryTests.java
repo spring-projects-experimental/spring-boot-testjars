@@ -48,6 +48,20 @@ class MavenClasspathEntryTests {
 				.isTrue();
 	}
 
+	@Test
+	void excludeTransitives() {
+		MavenClasspathEntry classpath = new MavenClasspathEntry(
+				"org.springframework.security:spring-security-web:6.4.0", true);
+		assertThat(classpath.resolve()).hasSize(1);
+	}
+
+	@Test
+	void excludeTransitivesMilestone() {
+		MavenClasspathEntry classpath = new MavenClasspathEntry(
+				"org.springframework.security:spring-security-web:6.4.0-RC1", true);
+		assertThat(classpath.resolve()).hasSize(1);
+	}
+
 	// gh-64
 	@Test
 	void runtimeDependencyResolved() {
