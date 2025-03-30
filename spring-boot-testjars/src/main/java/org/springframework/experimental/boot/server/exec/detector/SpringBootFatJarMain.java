@@ -18,12 +18,7 @@ package org.springframework.experimental.boot.server.exec.detector;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.log.LogMessage;
-import org.springframework.experimental.boot.server.exec.imports.GenericSpringBootApplicationMain;
-import org.springframework.util.ClassUtils;
+import org.springframework.boot.loader.log.DebugLogger;
 
 /**
  * Detect which JarLauncher main class to use, and call its {@code main(String[] args)}
@@ -37,7 +32,7 @@ import org.springframework.util.ClassUtils;
  */
 public class SpringBootFatJarMain {
 
-	private static Log log = LogFactory.getLog(SpringBootFatJarMain.class);
+	private static DebugLogger debug = DebugLogger.get(SpringBootFatJarMain.class);
 
 	static final String SPRING_BOOT_32_PLUS_LAUNCHER_CLASSNAME = "org.springframework.boot.loader.launch.JarLauncher";
 
@@ -59,17 +54,16 @@ public class SpringBootFatJarMain {
 	}
 
 	private static boolean runMain(String className, String[] args, String description) {
-		log.debug(LogMessage.format("Trying to run as %s using %s.main(String[])", description, className));
+		debug.log("Trying to run as %s using %s.main(String[])", description, className);
 		try {
-			Class<?> jarLauncher = ClassUtils.forName(className,
-					GenericSpringBootApplicationMain.class.getClassLoader());
+			Class<?> jarLauncher = ClassUtils.forName(className, SpringBootFatJarMain.class.getClassLoader());
 			var mainMethod = jarLauncher.getMethod("main", String[].class);
 			mainMethod.invoke(null, (Object) args);
-			log.debug(LogMessage.format("Successfully ran as %s", description));
+			debug.log("Successfully ran as %s", description);
 			return true;
 		}
 		catch (ClassNotFoundException ex) {
-			log.debug(LogMessage.format("Failed to run as %s", description), ex);
+			debug.log("Failed to run as %s", description, ex);
 		}
 		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
 			throw new RuntimeException(ex);
