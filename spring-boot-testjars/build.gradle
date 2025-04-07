@@ -27,6 +27,7 @@ dependencies {
 	implementation 'org.apache.commons:commons-exec:1.3'
 	implementation 'org.springframework:spring-test'
 	implementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.springframework.boot:spring-boot-loader'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework:spring-web'
 }
