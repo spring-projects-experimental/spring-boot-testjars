@@ -24,8 +24,12 @@ public class FileClasspathEntry implements ClasspathEntry {
 
 	private final File file;
 
-	public FileClasspathEntry(String file) {
-		this(new File(file));
+	public FileClasspathEntry(String filePath) {
+		File file = new File(filePath);
+		if (!file.isDirectory() && !file.getName().toLowerCase().endsWith("jar")) {
+			throw new IllegalArgumentException("File must be a jar file or directory");
+		}
+		this.file = file;
 	}
 
 	public FileClasspathEntry(File file) {
