@@ -2,7 +2,7 @@ plugins {
 	id'java'
 	id'checkstyle'
 	id'io.spring.javaformat' version'0.0.27'
-	id "io.spring.security.maven" version "1.0.1"
+	id "io.spring.security.maven" version "1.0.7"
 	id 'publish-conventions'
 }
 

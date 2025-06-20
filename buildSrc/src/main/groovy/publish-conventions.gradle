@@ -32,7 +32,3 @@ publishing {
         }
     }
 }
-
-if (!project.version.contains('-')) {
-    project.tasks.publishArtifacts.dependsOn 'publishToOssrh'
-}

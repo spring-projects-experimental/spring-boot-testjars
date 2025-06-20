@@ -1,6 +1,5 @@
 plugins {
-    id "io.spring.security.release" version "1.0.1"
-    id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
+    id "io.spring.security.release" version "1.0.7"
 }
 
 group = 'org.springframework.experimental.boot'
@@ -16,21 +15,3 @@ springRelease {
     releaseVersionPrefix = "v"
 }
 
-nexusPublishing {
-    repositories {
-        ossrh {
-            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
-            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            stagingProfileId = '2a29ff48cbb4b'
-        }
-    }
-}
-
-tasks.register('finalizeDeployArtifacts') {
-    group = 'Publishing'
-    description = 'Automatically close and release staging repositories when required based on the version'
-}
-
-if (!project.version.contains('-')) {
-    project.tasks.finalizeDeployArtifacts.dependsOn 'closeAndReleaseOssrhStagingRepository'
-}
