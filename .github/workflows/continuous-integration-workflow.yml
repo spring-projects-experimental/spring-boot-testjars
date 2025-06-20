@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1.0.7
     strategy:
       matrix:
         os: [ ubuntu-latest ]
