@@ -11,6 +11,7 @@ group = 'org.springframework.experimental.boot'
 ext {
 	mavenResolverVersion = '1.9.18'
 	mavenVersion = '3.9.4'
+	plexusUtilsVersion = '3.5.1'
 }
 
 java {
@@ -39,6 +40,7 @@ dependencies {
 	api "org.apache.maven.resolver:maven-resolver-transport-file:${mavenResolverVersion}"
 	api "org.apache.maven.resolver:maven-resolver-transport-http:${mavenResolverVersion}"
 	api "org.apache.maven.resolver:maven-resolver-supplier:${mavenResolverVersion}"
+	runtimeOnly "org.codehaus.plexus:plexus-utils:${plexusUtilsVersion}"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework:spring-web'
 }
