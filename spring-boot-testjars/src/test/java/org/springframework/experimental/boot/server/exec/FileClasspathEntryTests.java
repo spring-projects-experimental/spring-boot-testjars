@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 class FileClasspathEntryTests {
@@ -30,6 +31,13 @@ class FileClasspathEntryTests {
 		FileClasspathEntry notFoundEntry = new FileClasspathEntry(doesNotExist);
 		assertThatIllegalStateException().isThrownBy(notFoundEntry::resolve)
 				.withMessageContaining("Could not find file to add to the classpath");
+	}
+
+	@Test
+	void constructorWhenNotJarOrDirectoryThrowsIllegalArgumentException() {
+		String invalidPath = "some-file.txt";
+		assertThatIllegalArgumentException().isThrownBy(() -> new FileClasspathEntry(invalidPath))
+				.withMessageContaining("File must be a jar file or directory");
 	}
 
 }
