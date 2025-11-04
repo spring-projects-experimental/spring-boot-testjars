@@ -40,6 +40,7 @@ dependencies {
 	api "org.apache.maven.resolver:maven-resolver-transport-http:${mavenResolverVersion}"
 	api "org.apache.maven.resolver:maven-resolver-supplier:${mavenResolverVersion}"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework:spring-web'
 }
 

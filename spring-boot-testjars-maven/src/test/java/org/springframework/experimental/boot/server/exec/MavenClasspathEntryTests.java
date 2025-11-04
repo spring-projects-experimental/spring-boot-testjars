@@ -22,9 +22,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.aether.repository.RemoteRepository;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.SpringBootVersion;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.experimental.boot.server.exec.imports.GenericSpringBootApplicationMain;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -99,18 +104,6 @@ class MavenClasspathEntryTests {
 	}
 
 	@Test
-	void resolveDependencyWhenCustomRepository() {
-		List<RemoteRepository> repositories = new ArrayList<>();
-		repositories.add(
-				new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
-		repositories.add(new RemoteRepository.Builder("sonatype-snapshot", "default",
-				"https://oss.sonatype.org/content/repositories/snapshots/").build());
-		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.junit:junit5-api:5.0.0-SNAPSHOT",
-				repositories);
-		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
-	}
-
-	@Test
 	void resolveDependencyWhenOrgSpringframeworkSnapshotThenDoesNotRequireCustomRepository() {
 		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-SNAPSHOT");
 		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
@@ -126,6 +119,30 @@ class MavenClasspathEntryTests {
 	void resolveDependencyWhenOrgSpringframeworkM1ThenDoesNotRequireCustomRepository() {
 		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-M1");
 		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+	}
+
+	@Nested
+	@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+			classes = GenericSpringBootApplicationMain.class)
+	@TestPropertySource(
+			properties = "spring.web.resources.static-locations=classpath:/org/springframework/experimental/boot/server/exec/maven/")
+	class MockRepositoryTests {
+
+		@LocalServerPort
+		int port;
+
+		@Test
+		void resolveDependencyWhenCustomRepository() {
+			List<RemoteRepository> repositories = new ArrayList<>();
+			repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/")
+					.build());
+			repositories
+					.add(new RemoteRepository.Builder("custom", "default", "http://localhost:" + this.port).build());
+			MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.example:example-api:1.0.0-SNAPSHOT",
+					repositories);
+			assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+		}
+
 	}
 
 }
