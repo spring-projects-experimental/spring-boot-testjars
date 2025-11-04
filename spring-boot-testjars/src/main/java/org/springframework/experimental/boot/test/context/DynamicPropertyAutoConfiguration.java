@@ -17,16 +17,20 @@
 package org.springframework.experimental.boot.test.context;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 
 /**
  * Automatically imports {@code EnableDynamicProperty}.
  *
  * @author Rob Winch
+ * @author Chris Bono
  */
 @AutoConfiguration
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ConditionalOnClass(DynamicPropertyRegistrar.class)
 @EnableDynamicProperty
 public class DynamicPropertyAutoConfiguration {
 

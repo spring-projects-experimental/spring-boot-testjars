@@ -28,8 +28,9 @@ checkstyle {
 dependencies {
 	checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.40")
 	api project(':spring-boot-testjars')
-	api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
+	api platform('org.springframework.boot:spring-boot-dependencies:4.0.0-RC1')
 	api 'org.springframework.boot:spring-boot-starter'
+	api 'org.springframework.boot:spring-boot-web-server'
 	api "org.apache.maven:maven-resolver-provider:${mavenVersion}"
 	api "org.apache.maven.resolver:maven-resolver-api:${mavenResolverVersion}"
 	api "org.apache.maven.resolver:maven-resolver-spi:${mavenResolverVersion}"
@@ -42,6 +43,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework:spring-web'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
