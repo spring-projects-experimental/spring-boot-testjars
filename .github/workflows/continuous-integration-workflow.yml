@@ -8,10 +8,13 @@ on:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch: # Manual trigger
 
+env:
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1.0.8
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
     strategy:
       matrix:
         os: [ ubuntu-latest ]
