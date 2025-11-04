@@ -103,29 +103,29 @@ class MavenClasspathEntryTests {
 		List<RemoteRepository> repositories = new ArrayList<>();
 		repositories.add(
 				new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
-		repositories.add(new RemoteRepository.Builder("sonatype-snapshot", "default",
-				"https://oss.sonatype.org/content/repositories/snapshots/").build());
-		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.junit:junit5-api:5.0.0-SNAPSHOT",
-				repositories);
-		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+		repositories.add(new RemoteRepository.Builder("apache-snapshot", "default",
+				"https://repository.apache.org/content/repositories/snapshots/").build());
+		MavenClasspathEntry classpathEntry = new MavenClasspathEntry(
+				"org.apache.commons:commons-compress:1.29.0-SNAPSHOT", repositories);
+		assertThatNoException().isThrownBy(classpathEntry::resolve);
 	}
 
 	@Test
 	void resolveDependencyWhenOrgSpringframeworkSnapshotThenDoesNotRequireCustomRepository() {
 		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-SNAPSHOT");
-		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+		assertThatNoException().isThrownBy(classpathEntry::resolve);
 	}
 
 	@Test
 	void resolveDependencyWhenOrgSpringframeworkRc1ThenDoesNotRequireCustomRepository() {
 		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-RC1");
-		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+		assertThatNoException().isThrownBy(classpathEntry::resolve);
 	}
 
 	@Test
 	void resolveDependencyWhenOrgSpringframeworkM1ThenDoesNotRequireCustomRepository() {
 		MavenClasspathEntry classpathEntry = new MavenClasspathEntry("org.springframework:spring-core:6.2.0-M1");
-		assertThatNoException().isThrownBy(() -> classpathEntry.resolve());
+		assertThatNoException().isThrownBy(classpathEntry::resolve);
 	}
 
 }
