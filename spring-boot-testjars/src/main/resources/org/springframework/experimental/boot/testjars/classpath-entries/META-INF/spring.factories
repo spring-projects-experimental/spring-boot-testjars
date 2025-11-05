@@ -1,2 +1,2 @@
 org.springframework.context.ApplicationListener=\
-org.springframework.boot.web.context.WebServerPortFileWriter
+org.springframework.boot.web.server.context.WebServerPortFileWriter
