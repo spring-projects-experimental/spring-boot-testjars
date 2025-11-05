@@ -15,7 +15,6 @@
  */
 
 /**
- * Provides {@link org.springframework.boot.web.server.WebServer} that is started via a
- * command.
+ * Provides Maven integration.
  */
 package org.springframework.experimental.boot.server.exec;
