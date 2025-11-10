@@ -32,6 +32,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.support.DynamicPropertyRegistrarBeanInitializer;
 
 /**
  * Finds beans annotated with {@link DynamicProperty} and adds the properties to the
@@ -40,6 +41,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
  * @author Rob Winch
  */
 class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+
+	private static final String DYNAMIC_PROPERTY_DEFINITION_REGISTRAR_BEAN_NAME = "org.springframework.test.context.support.internalDynamicPropertyRegistrarBeanInitializer";
 
 	public static final String REGISTRAR_BEAN_NAME = "testjarsDynamicPropertyRegistryPropertyRegistrar";
 
@@ -57,16 +60,17 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		if (registry.containsBeanDefinition(REGISTRAR_BEAN_NAME)) {
-			return;
-		}
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory listableBeanFactory) {
 			registerDynamicPropertyRegistrar(listableBeanFactory, registry);
+			registerDynamicPropertyRegistrarBeanInitializer(registry);
 		}
 	}
 
 	private void registerDynamicPropertyRegistrar(ConfigurableListableBeanFactory beanFactory,
 			BeanDefinitionRegistry registry) {
+		if (registry.containsBeanDefinition(REGISTRAR_BEAN_NAME)) {
+			return;
+		}
 		List<DynamicPropertyRegistryProperty> properties = new ArrayList<>();
 		for (String dynamicPropertyBeanName : beanFactory.getBeanNamesForAnnotation(DynamicProperty.class)) {
 			BeanDefinition dynamicPropertyBeanDefinition = registry.getBeanDefinition(dynamicPropertyBeanName);
@@ -95,6 +99,15 @@ class DynamicPropertyDefinitionRegistrar implements ImportBeanDefinitionRegistra
 					() -> this.beanFactory.getBean(dynamicPropertyBeanName));
 		}
 		return null;
+	}
+
+	private void registerDynamicPropertyRegistrarBeanInitializer(BeanDefinitionRegistry registry) {
+		if (!registry.containsBeanDefinition(DYNAMIC_PROPERTY_DEFINITION_REGISTRAR_BEAN_NAME)) {
+			BeanDefinitionBuilder bdb = BeanDefinitionBuilder
+					.rootBeanDefinition(DynamicPropertyRegistrarBeanInitializer.class);
+			bdb.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+			registry.registerBeanDefinition(DYNAMIC_PROPERTY_DEFINITION_REGISTRAR_BEAN_NAME, bdb.getBeanDefinition());
+		}
 	}
 
 	static class DynamicPropertyRegistryPropertyRegistrar implements DynamicPropertyRegistrar {

@@ -19,7 +19,10 @@ package org.springframework.experimental.boot.test.context;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -32,6 +35,18 @@ class DynamicPropertyDefinitionRegistrarTests {
 			context.register(ImportTwiceTestConfiguration.class);
 			context.setAllowBeanDefinitionOverriding(false);
 			context.refresh();
+		}
+	}
+
+	// gh-104
+	@Test
+	void environmentPopulatedWhenNotInTestContext() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+			context.register(WebServerConfiguration.class);
+			context.refresh();
+
+			String port = context.getEnvironment().getProperty("testjars.port");
+			assertThat(port).isEqualTo("1234");
 		}
 	}
 
@@ -48,6 +63,18 @@ class DynamicPropertyDefinitionRegistrarTests {
 		@Configuration
 		static class Config2 {
 
+		}
+
+	}
+
+	@Configuration
+	@EnableDynamicProperty
+	static class WebServerConfiguration {
+
+		@Bean
+		@DynamicProperty(name = "testjars.port", value = "port")
+		static WebServer webServer() {
+			return new WebServer();
 		}
 
 	}

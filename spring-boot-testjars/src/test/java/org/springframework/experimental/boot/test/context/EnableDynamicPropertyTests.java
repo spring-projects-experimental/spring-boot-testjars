@@ -19,11 +19,13 @@ package org.springframework.experimental.boot.test.context;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.support.DynamicPropertyRegistrarBeanInitializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,6 +35,17 @@ class EnableDynamicPropertyTests {
 	@Test
 	void dynamicPropertyJavadoc(@Autowired Environment environment) {
 		assertThat(environment.getProperty("service.url")).isEqualTo("http://localhost:1234");
+	}
+
+	/**
+	 * Ensures the TestContext framework and {@link EnableDynamicProperty} on register a
+	 * single {@link DynamicPropertyRegistrarBeanInitializer}.
+	 * @param initialiers the initializers
+	 */
+	@Test
+	void singleDynamicPropertyRegistrarBeanInitializer(
+			@Autowired ObjectProvider<DynamicPropertyRegistrarBeanInitializer> initialiers) {
+		assertThat(initialiers.orderedStream()).hasSize(1);
 	}
 
 	@EnableDynamicProperty
