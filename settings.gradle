@@ -28,3 +28,5 @@ include ':spring-boot-testjars'
 include ':spring-boot-testjars-maven'
 include ':samples:oauth2-login'
 include ':samples:oauth2-login-custom-config'
+include 'samples:cloud-config'
+
