@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,13 @@ public class FileClasspathEntry implements ClasspathEntry {
 
 	private final File file;
 
-	public FileClasspathEntry(String file) {
-		this(new File(file));
+	public FileClasspathEntry(String filePath) {
+		File file = new File(filePath);
+		if (!file.isDirectory() && !file.getName().toLowerCase().endsWith("jar")) {
+			String absolutePath = file.getAbsolutePath();
+			throw new IllegalArgumentException("File must be a jar file or directory '" + absolutePath + "'");
+		}
+		this.file = file;
 	}
 
 	public FileClasspathEntry(File file) {
